@@ -1432,3 +1432,7 @@ module.exports = async () => {
 Isso cria uma exceção para que o Jest transpile apenas o `node-pg-migrate` e o `glob`, mantendo o resto do `node_modules` ignorado.
 
 ---
+
+# Regex
+
+![alt text](imgs/regex.png)
