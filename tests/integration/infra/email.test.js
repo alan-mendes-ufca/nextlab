@@ -3,7 +3,7 @@ import orchestrator from "tests/orchestrator";
 
 describe("infra/email.js", () => {
   test("send()", async () => {
-    orchestrator.deleteAllEmails();
+    await orchestrator.deleteAllEmails();
     await email.send({
       from: "TecHubUfca <contato@ufca.dev",
       to: "contato@curso.dev",

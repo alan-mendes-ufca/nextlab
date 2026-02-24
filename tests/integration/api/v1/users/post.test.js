@@ -32,6 +32,7 @@ describe("POST to /api/v1/users", () => {
         username: "alanmendes",
         email: "alan.mendes@aluno.ufca.edu.br",
         password: responseBody.password,
+        features: [],
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
       });
@@ -78,6 +79,7 @@ describe("POST to /api/v1/users", () => {
         username: "emailDuplicado1",
         email: "emailDuplicado@gmail.com",
         password: responseBody.password,
+        features: [],
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
       });
