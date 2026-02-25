@@ -111,6 +111,12 @@ async function getLastEmail() {
   return lastEmailItem;
 }
 
+function extractActivationTokenFromEmail(emailBody) {
+  const regex = /\/cadastro\/ativar\/([a-zA-Z0-9\-_]+)/;
+  const match = emailBody.match(regex);
+  return match?.[1];
+}
+
 const orchestrator = {
   waitForAllServices,
   clearDB,
@@ -120,6 +126,7 @@ const orchestrator = {
   createSession,
   deleteAllEmails,
   getLastEmail,
+  extractActivationTokenFromEmail,
 };
 
 export default orchestrator;

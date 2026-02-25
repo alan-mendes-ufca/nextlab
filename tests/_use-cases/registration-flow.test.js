@@ -1,5 +1,6 @@
 import activation from "models/activation.js";
 import orchestrator from "../orchestrator.js";
+
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
   await orchestrator.clearDB();
@@ -41,17 +42,22 @@ describe("Use case: Registration Flow (all successful)", () => {
   });
   test("Receive activation email", async () => {
     const lastEmail = await orchestrator.getLastEmail();
-    const activationToken = await activation.findOneByUserId(
-      createdUserResponseBody.id,
-    );
 
     expect(lastEmail.sender).toBe("<contato@curso.dev>");
     expect(lastEmail.recipients[0]).toBe("<registration.flow@curso.dev>");
     expect(lastEmail.subject).toEqual("Ative seu cadastro no Tech-Hub-Ufca!");
     expect(lastEmail.text).toContain("RegistrationFlow");
-    expect(lastEmail.text).toContain(activationToken.id);
-  });
 
+    const activationToken = orchestrator.extractActivationTokenFromEmail(
+      lastEmail.text,
+    );
+
+    const findedToken =
+      await activation.findOneByActivationToken(activationToken);
+
+    expect(findedToken.user_id).toEqual(createdUserResponseBody.id);
+    expect(findedToken.used_at).toEqual(null);
+  });
   test("Activate account", async () => {});
 
   test("Login", async () => {});
