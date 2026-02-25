@@ -2,6 +2,7 @@ import database from "infra/database.js";
 import email from "../infra/email.js";
 import webServer from "infra/webserver.js";
 import { NotFoundError } from "infra/errors.js";
+import user from "./user.js";
 
 const EXPIRATION_IN_MILLISECONDS = 60 * 15 * 1000; // 15 minutes;
 
@@ -40,11 +41,11 @@ async function create(userId) {
   }
 }
 
-async function findOneByActivationToken(token) {
-  const findedToken = await runSelectQuery(token);
+async function findOneByActivationToken(tokenId) {
+  const findedToken = await runSelectQuery(tokenId);
   return findedToken;
 
-  async function runSelectQuery(token) {
+  async function runSelectQuery(tokenId) {
     const result = await database.query({
       text: `
       SELECT 
@@ -58,7 +59,7 @@ async function findOneByActivationToken(token) {
       LIMIT
         1
       ;`,
-      values: [token],
+      values: [tokenId],
     });
 
     if (!result.rowCount > 0)
@@ -72,10 +73,42 @@ async function findOneByActivationToken(token) {
   }
 }
 
+async function markTokenAsUsed(token) {
+  const findedToken = (await findOneByActivationToken(token)).id;
+  const usedToken = await runUpdateQuery(findedToken);
+  return usedToken;
+
+  async function runUpdateQuery(token) {
+    const result = await database.query({
+      text: `
+      UPDATE 
+        user_activation_tokens
+      SET
+        used_at = timezone('utc', now()), 
+        updated_at = timezone('utc', now()),
+        expires_at = expires_at - interval '1 year'
+      WHERE
+        id = $1
+      RETURNING 
+        *
+      ;`,
+      values: [token],
+    });
+    return result.rows[0];
+  }
+}
+
+async function activateUserByUserId(userId) {
+  const activatedUser = await user.setFeatures(userId, ["create:session"]);
+  return activatedUser;
+}
+
 const activation = {
   sendEmailToUser,
   create,
   findOneByActivationToken,
+  markTokenAsUsed,
+  activateUserByUserId,
 };
 
 export default activation;
