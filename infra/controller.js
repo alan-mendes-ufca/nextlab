@@ -10,6 +10,7 @@ import {
 } from "./errors.js";
 import session from "models/session.js";
 import user from "models/user.js";
+import authorization from "models/authorization.js";
 
 function onNoMatchHandler(request, response) {
   const publicErrorObject = new MethodNotAllowedError();
@@ -90,7 +91,7 @@ function canRequest(feature) {
   return function canRequestMiddleware(request, response, next) {
     const userTryingToRequest = request.context.user;
 
-    if (userTryingToRequest.features.includes(feature)) return next();
+    if (authorization.can(userTryingToRequest, feature)) return next();
 
     throw new ForbiddenError({
       message: "Voçê não possui permissão para executar essa ação.",

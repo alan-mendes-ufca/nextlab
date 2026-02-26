@@ -89,6 +89,18 @@ describe("POST to /api/v1/sessions", () => {
         password: "correctPassword",
       });
 
+      const lastEmail = await orchestrator.getLastEmail();
+      const activationToken = orchestrator.extractActivationTokenFromEmail(
+        lastEmail.text,
+      );
+
+      await fetch(
+        `http://localhost:3000/api/v1/activations/${activationToken}`,
+        {
+          method: "PATCH",
+        },
+      );
+
       const response = await fetch("http://localhost:3000/api/v1/sessions", {
         method: "POST",
         headers: {

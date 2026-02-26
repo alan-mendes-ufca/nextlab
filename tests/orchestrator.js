@@ -4,6 +4,7 @@ import db from "../infra/database.js";
 import migrator from "../models/migrator.js";
 import user from "../models/user.js";
 import session from "../models/session.js";
+import activation from "../models/activation.js";
 
 const emailHttpUrl = `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}`;
 
@@ -73,12 +74,16 @@ async function totalAppliedMigrations() {
 }
 
 async function createUser(userObject) {
-  return await user.create({
+  const createdUser = await user.create({
     username:
       userObject.username || faker.internet.username().replace(/[_.-]/g, ""),
     email: userObject.email || faker.internet.email(),
     password: userObject.password || "password",
   });
+
+  const activationToken = await activation.create(createdUser.id);
+  await activation.sendEmailToUser(createdUser, activationToken);
+  return createdUser;
 }
 
 async function createSession(userId) {

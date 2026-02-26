@@ -3,6 +3,9 @@ import controller from "../../../../infra/controller.js";
 import authentication from "models/authentication.js";
 import session from "models/session.js";
 
+import authorization from "models/authorization.js";
+import { ForbiddenError } from "infra/errors.js";
+
 const router = createRouter();
 
 router.use(controller.injectAnonymousOrUser);
@@ -16,6 +19,13 @@ async function postHandler(request, response) {
     userInputValues.email,
     userInputValues.password,
   );
+
+  if (!authorization.can(authenticatedUser, "create:session")) {
+    throw new ForbiddenError({
+      message: "Você não possui permissão para fazer login.",
+      action: "Contate o suporte caso você acredite que isto seja um erro.",
+    });
+  }
 
   const newSession = await session.create(authenticatedUser.id);
 
