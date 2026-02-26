@@ -1,7 +1,7 @@
-import database from "infra/database.js";
+import database from "../infra/database.js";
 import email from "../infra/email.js";
-import webServer from "infra/webserver.js";
-import { NotFoundError } from "infra/errors.js";
+import webServer from "../infra/webserver.js";
+import { NotFoundError } from "../infra/errors.js";
 import user from "./user.js";
 
 const EXPIRATION_IN_MILLISECONDS = 60 * 15 * 1000; // 15 minutes;
