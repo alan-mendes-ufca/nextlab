@@ -1,4 +1,4 @@
-import { UnautorizedError } from "../infra/errors.js";
+import { UnauthorizedError } from "../infra/errors.js";
 import database from "../infra/database.js";
 import crypto from "node:crypto";
 
@@ -46,7 +46,7 @@ async function findOneValidByToken(providedToken) {
     });
 
     if (result.rowCount === 0) {
-      throw new UnautorizedError({
+      throw new UnauthorizedError({
         message: "Usuário não possui sessão ativa.",
         action: "Verifique se o usuário está logado e tente novamente.",
       });

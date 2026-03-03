@@ -28,11 +28,8 @@ async function create(userId) {
   async function runInsertQuery(userId, expiresAt) {
     const result = await database.query({
       text: `
-      INSERT INTO
-        user_activation_tokens(user_id, expires_at)
-      VALUES
-        ($1, $2)
-      RETURNING
+        INSERT INTO user_activation_tokens(user_id, expires_at)
+        VALUES ($1, $2) RETURNING
         *
       `,
       values: [userId, expiresAt],
@@ -48,17 +45,13 @@ async function findOneByActivationToken(tokenId) {
   async function runSelectQuery(tokenId) {
     const result = await database.query({
       text: `
-      SELECT 
-        *
-      FROM
-        user_activation_tokens
-      WHERE
-        id = $1
-        AND expires_at > NOW()
-        AND used_at IS NULL
-      LIMIT
+        SELECT *
+        FROM user_activation_tokens
+        WHERE id = $1
+          AND expires_at > NOW()
+          AND used_at IS NULL LIMIT
         1
-      ;`,
+        ;`,
       values: [tokenId],
     });
 
@@ -74,24 +67,23 @@ async function findOneByActivationToken(tokenId) {
 }
 
 async function markTokenAsUsed(token) {
-  const findedToken = (await findOneByActivationToken(token)).id;
-  const usedToken = await runUpdateQuery(findedToken);
+  const foundToken = (await findOneByActivationToken(token)).id;
+  const usedToken = await runUpdateQuery(foundToken);
   return usedToken;
 
   async function runUpdateQuery(token) {
     const result = await database.query({
       text: `
-      UPDATE 
-        user_activation_tokens
-      SET
-        used_at = timezone('utc', now()), 
-        updated_at = timezone('utc', now()),
-        expires_at = expires_at - interval '1 year'
-      WHERE
-        id = $1
-      RETURNING 
-        *
-      ;`,
+        UPDATE
+          user_activation_tokens
+        SET used_at    = timezone('utc', now()),
+            updated_at = timezone('utc', now()),
+            expires_at = expires_at - interval '1 year'
+        WHERE
+          id = $1
+          RETURNING
+          *
+        ;`,
       values: [token],
     });
     return result.rows[0];

@@ -1,5 +1,5 @@
 import database from "../infra/database.js";
-import { NotFoundError, ValitationError } from "../infra/errors.js";
+import { NotFoundError, ValidationError } from "../infra/errors.js";
 import password from "../models/password.js";
 
 async function create(userInputValues) {
@@ -14,13 +14,10 @@ async function create(userInputValues) {
   async function runInsertQuery(userInputValues) {
     const result = await database.query({
       text: `
-    INSERT INTO 
-      users (username, email, password, features) 
-    VALUES 
-      ($1, $2, $3, $4)
-    RETURNING
+        INSERT INTO users (username, email, password, features)
+        VALUES ($1, $2, $3, $4) RETURNING
       *
-    ;`,
+        ;`,
 
       values: [
         userInputValues.username,
@@ -65,19 +62,16 @@ async function update(username, userInputValues) {
   async function runUpdateQuery(userWithNewValues) {
     const result = await database.query({
       text: `
-    UPDATE 
-      users
-    SET 
-      username = $2, 
-      email = $3,
-      password = $4,
-      updated_at = timezone('utc', now())
-    WHERE
-      id = $1
-    RETURNING
+        UPDATE
+          users
+        SET username   = $2,
+            email      = $3,
+            password   = $4,
+            updated_at = timezone('utc', now())
+        WHERE id = $1 RETURNING
       *
-    ;
-    `,
+        ;
+      `,
       values: [
         userWithNewValues.id,
         userWithNewValues.username,
@@ -93,6 +87,7 @@ async function update(username, userInputValues) {
 async function findOneByUsername(username) {
   const userFound = runSelectQuery(username);
   return userFound;
+
   async function runSelectQuery(username) {
     const response = await database.query({
       text: `
@@ -120,18 +115,15 @@ async function findOneByUsername(username) {
 async function findOneByEmail(email) {
   const userFound = runSelectQuery(email);
   return userFound;
+
   async function runSelectQuery(email) {
     const response = await database.query({
       text: `
-    SELECT 
-      * 
-    FROM 
-      users 
-    WHERE 
-      LOWER(email) = LOWER($1)
-    LIMIT
+        SELECT *
+        FROM users
+        WHERE LOWER(email) = LOWER($1) LIMIT
       1
-    ;`,
+        ;`,
       values: [email],
     });
     if (!response.rows.length > 0) {
@@ -172,7 +164,7 @@ async function findOneById(id) {
 
 async function validateUniqueEmail(email) {
   if (!email) {
-    const valitationError = new ValitationError({
+    const valitationError = new ValidationError({
       message: "Email não informado.",
       action: "Utilize um email para realizar o cadastro.",
     });
@@ -180,18 +172,15 @@ async function validateUniqueEmail(email) {
   }
   const result = await database.query({
     text: `
-    SELECT 
-      email 
-    FROM
-      users
-    WHERE
-      LOWER(email) = LOWER($1)
-    ;`,
+      SELECT email
+      FROM users
+      WHERE LOWER(email) = LOWER($1)
+      ;`,
 
     values: [email],
   });
   if (result.rowCount > 0) {
-    const valitationError = new ValitationError({
+    const valitationError = new ValidationError({
       message: "Email informado já está sendo utilizado.",
       action: "Utilize outro email para realizar esta operação.",
     });
@@ -201,7 +190,7 @@ async function validateUniqueEmail(email) {
 
 async function validateUniqueUsername(username) {
   if (!username) {
-    const valitationError = new ValitationError({
+    const valitationError = new ValidationError({
       message: "Username não informado.",
       action: "Utilize um username para realizar o cadastro.",
     });
@@ -220,7 +209,7 @@ async function validateUniqueUsername(username) {
     values: [username],
   });
   if (result.rowCount > 0) {
-    const valitationError = new ValitationError({
+    const valitationError = new ValidationError({
       message: "Username informado já está sendo utilizado.",
       action: "Utilize outro username para realizar esta operação.",
     });

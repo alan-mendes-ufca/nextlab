@@ -1,4 +1,5 @@
 import pkg from "pg";
+
 const { Client } = pkg;
 import { ServicesError } from "./errors.js";
 
@@ -10,11 +11,10 @@ async function query(queryObject) {
     const result = await client.query(queryObject);
     return result;
   } catch (error) {
-    const servicesError = new ServicesError({
+    throw new ServicesError({
       message: "Erro de conexão no banco ou query.",
       cause: error,
     });
-    throw servicesError;
   } finally {
     await client?.end();
   }
@@ -41,10 +41,9 @@ function getSSLValues() {
     return process.env.POSTGRES_CA;
   }
 
-  return process.env.NODE_ENV === "development" ||
-    process.env.NODE_ENV === "test"
-    ? false
-    : true;
+  return !(
+    process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test"
+  );
 }
 
 const database = {

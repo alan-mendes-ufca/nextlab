@@ -30,7 +30,7 @@ describe("POST to /api/v1/sessions", () => {
 
       const responseBody = await response.json();
       expect(responseBody).toEqual({
-        name: "UnautorizedError",
+        name: "UnauthorizedError",
         action: "Verifique se os dados enviados estão corretos",
         message: "Dados de autenticação não conferem.",
         status_code: 401,
@@ -55,7 +55,7 @@ describe("POST to /api/v1/sessions", () => {
 
       const responseBody = await response.json();
       expect(responseBody).toEqual({
-        name: "UnautorizedError",
+        name: "UnauthorizedError",
         action: "Verifique se os dados enviados estão corretos",
         message: "Dados de autenticação não conferem.",
         status_code: 401,
@@ -78,28 +78,19 @@ describe("POST to /api/v1/sessions", () => {
 
       const responseBody = await response.json();
       expect(responseBody).toEqual({
-        name: "UnautorizedError",
+        name: "UnauthorizedError",
         action: "Verifique se os dados enviados estão corretos",
         message: "Dados de autenticação não conferem.",
         status_code: 401,
       });
     });
+
     test("With correct 'email' and correct 'password'", async () => {
       const createdUser = await orchestrator.createUser({
         password: "correctPassword",
       });
 
-      const lastEmail = await orchestrator.getLastEmail();
-      const activationToken = orchestrator.extractActivationTokenFromEmail(
-        lastEmail.text,
-      );
-
-      await fetch(
-        `http://localhost:3000/api/v1/activations/${activationToken}`,
-        {
-          method: "PATCH",
-        },
-      );
+      await orchestrator.activateUser(createdUser);
 
       const response = await fetch("http://localhost:3000/api/v1/sessions", {
         method: "POST",

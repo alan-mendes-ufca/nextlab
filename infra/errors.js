@@ -59,7 +59,7 @@ export class MethodNotAllowedError extends Error {
   }
 }
 
-export class ValitationError extends Error {
+export class ValidationError extends Error {
   constructor({ message, action }) {
     super(message || "Error de validação.");
     this.name = "ValidationError";
@@ -87,6 +87,7 @@ export class NotFoundError extends Error {
       action || "Verifique se os parâmetros enviados na consulta estão certos.";
     this.statusCode = 404;
   }
+
   toJSON() {
     return {
       name: this.name,
@@ -97,11 +98,11 @@ export class NotFoundError extends Error {
   }
 }
 
-export class UnautorizedError extends Error {
+export class UnauthorizedError extends Error {
   constructor({ message, action }) {
     super(message || "Dados de autenticação não conferem.");
 
-    this.name = "UnautorizedError";
+    this.name = "UnauthorizedError";
     this.action = action || "Verifique se os dados enviados estão corretos";
     this.statusCode = 401;
   }
@@ -124,6 +125,7 @@ export class ForbiddenError extends Error {
       action || "Verifique as features necessárias antes de continuar";
     this.statusCode = 403;
   }
+
   toJSON() {
     return {
       name: this.name,

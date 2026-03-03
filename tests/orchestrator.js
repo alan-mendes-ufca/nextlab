@@ -65,7 +65,7 @@ async function clearDB() {
 }
 
 async function runPendingMigrations() {
-  await migrator.runPedingMigrations();
+  await migrator.runPendingMigrations();
 }
 
 async function totalAppliedMigrations() {
@@ -84,6 +84,10 @@ async function createUser(userObject) {
   const activationToken = await activation.create(createdUser.id);
   await activation.sendEmailToUser(createdUser, activationToken);
   return createdUser;
+}
+
+async function activateUser(inactivaUser) {
+  await activation.activateUserByUserId(inactivaUser.id);
 }
 
 async function createSession(userId) {
@@ -128,6 +132,7 @@ const orchestrator = {
   runPendingMigrations,
   totalAppliedMigrations,
   createUser,
+  activateUser,
   createSession,
   deleteAllEmails,
   getLastEmail,

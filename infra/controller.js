@@ -3,9 +3,9 @@ import * as cookie from "cookie";
 import {
   MethodNotAllowedError,
   InternalServerError,
-  ValitationError,
+  ValidationError,
   NotFoundError,
-  UnautorizedError,
+  UnauthorizedError,
   ForbiddenError,
 } from "./errors.js";
 import session from "models/session.js";
@@ -17,17 +17,17 @@ function onNoMatchHandler(request, response) {
   response.status(publicErrorObject.statusCode).json(publicErrorObject);
 }
 
-function onErrorHandler(error, request, response) {
+async function onErrorHandler(error, request, response) {
   if (
-    error instanceof ValitationError ||
+    error instanceof ValidationError ||
     error instanceof NotFoundError ||
     error instanceof ForbiddenError
   ) {
     response.status(error.statusCode).json(error);
   }
 
-  if (error instanceof UnautorizedError) {
-    clearSessionCookie(response);
+  if (error instanceof UnauthorizedError) {
+    await clearSessionCookie(response);
     response.status(error.statusCode).json(error);
   }
 
@@ -61,7 +61,7 @@ async function clearSessionCookie(response) {
 
 async function injectAnonymousOrUser(request, response, next) {
   if (request.cookies?.session_id) await injectAuthenticatedUser(request);
-  else injectAnonymousUser(request);
+  else await injectAnonymousUser(request);
   return next();
 
   async function injectAuthenticatedUser(request) {

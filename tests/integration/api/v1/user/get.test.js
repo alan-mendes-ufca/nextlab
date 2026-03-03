@@ -9,7 +9,7 @@ beforeAll(async () => {
   await orchestrator.runPendingMigrations();
 });
 
-describe("POST to /api/v1/sessions", () => {
+describe("GET to /api/v1/sessions", () => {
   describe("Anonymous user", () => {
     test("With valid 'session'", async () => {
       const createdUser = await orchestrator.createUser({
@@ -18,7 +18,6 @@ describe("POST to /api/v1/sessions", () => {
 
       const sessionObject = await orchestrator.createSession(createdUser.id);
 
-      // eslint-disable-next-line no-undef
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const response = await fetch("http://localhost:3000/api/v1/user", {
@@ -85,7 +84,7 @@ describe("POST to /api/v1/sessions", () => {
 
       const responseBody = await response.json();
       expect(responseBody).toEqual({
-        name: "UnautorizedError",
+        name: "UnauthorizedError",
         message: "Usuário não possui sessão ativa.",
         action: "Verifique se o usuário está logado e tente novamente.",
         status_code: 401,
@@ -129,7 +128,7 @@ describe("POST to /api/v1/sessions", () => {
 
       const responseBody = await response.json();
       expect(responseBody).toEqual({
-        name: "UnautorizedError",
+        name: "UnauthorizedError",
         message: "Usuário não possui sessão ativa.",
         action: "Verifique se o usuário está logado e tente novamente.",
         status_code: 401,

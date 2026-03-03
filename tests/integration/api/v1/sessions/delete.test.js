@@ -25,7 +25,7 @@ describe("DELETE to /api/v1/sessions", () => {
 
       const responseBody = await response.json();
       expect(responseBody).toEqual({
-        name: "UnautorizedError",
+        name: "UnauthorizedError",
         message: "Usuário não possui sessão ativa.",
         action: "Verifique se o usuário está logado e tente novamente.",
         status_code: 401,
@@ -53,7 +53,7 @@ describe("DELETE to /api/v1/sessions", () => {
 
       const responseBody = await response.json();
       expect(responseBody).toEqual({
-        name: "UnautorizedError",
+        name: "UnauthorizedError",
         message: "Usuário não possui sessão ativa.",
         action: "Verifique se o usuário está logado e tente novamente.",
         status_code: 401,
