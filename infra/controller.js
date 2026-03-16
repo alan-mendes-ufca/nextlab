@@ -40,7 +40,7 @@ async function onErrorHandler(error, request, response) {
 }
 
 async function setSessionCookie(sessionToken, response) {
-  const setCookie = cookie.serialize("session_id", sessionToken, {
+  const setCookie = cookie.serialize("session_token", sessionToken, {
     path: "/",
     maxAge: session.EXPIRATION_IN_MILLISECONDS / 1000,
     secure: true,
@@ -50,7 +50,7 @@ async function setSessionCookie(sessionToken, response) {
 }
 
 async function clearSessionCookie(response) {
-  const setCookie = cookie.serialize("session_id", "invalid", {
+  const setCookie = cookie.serialize("session_token", "invalid", {
     path: "/",
     maxAge: -1,
     secure: true,
@@ -60,12 +60,12 @@ async function clearSessionCookie(response) {
 }
 
 async function injectAnonymousOrUser(request, response, next) {
-  if (request.cookies?.session_id) await injectAuthenticatedUser(request);
+  if (request.cookies?.session_token) await injectAuthenticatedUser(request);
   else await injectAnonymousUser(request);
   return next();
 
   async function injectAuthenticatedUser(request) {
-    const sessionToken = request.cookies.session_id;
+    const sessionToken = request.cookies.session_token;
     const sessionObject = await session.findOneValidByToken(sessionToken);
     const userObject = await user.findOneById(sessionObject.user_id);
 

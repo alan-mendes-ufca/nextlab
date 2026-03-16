@@ -11,18 +11,34 @@ beforeAll(async () => {
 
 describe("GET to /api/v1/sessions", () => {
   describe("Anonymous user", () => {
+    test("With injected anonymous user", async () => {
+      const response = await fetch("http://localhost:3000/api/v1/user");
+      expect(response.status).toBe(403);
+
+      const responseBody = await response.json();
+
+      expect(responseBody).toEqual({
+        action: "Verifique se o seu usuário possui a feature 'read:session'",
+        message: "Voçê não possui permissão para executar essa ação.",
+        name: "ForbiddenError",
+        status_code: 403,
+      });
+    });
+  });
+  describe("Default user", () => {
     test("With valid 'session'", async () => {
       const createdUser = await orchestrator.createUser({
         username: "UserWithValidSession",
       });
 
+      const activatedUser = await orchestrator.activateUser(createdUser);
+
       const sessionObject = await orchestrator.createSession(createdUser.id);
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
-
       const response = await fetch("http://localhost:3000/api/v1/user", {
         headers: {
-          Cookie: `session_id=${sessionObject.token}`,
+          Cookie: `session_token=${sessionObject.token}`,
         },
       });
       expect(response.status).toBe(200);
@@ -38,9 +54,9 @@ describe("GET to /api/v1/sessions", () => {
         username: createdUser.username,
         email: createdUser.email,
         password: createdUser.password,
-        features: ["read:activation_token"],
+        features: ["create:session", "read:session"],
         created_at: createdUser.created_at.toISOString(),
-        updated_at: createdUser.updated_at.toISOString(),
+        updated_at: activatedUser.updated_at.toISOString(),
       });
 
       expect(uuidVersion(responseBody.id)).toBe(4);
@@ -48,7 +64,6 @@ describe("GET to /api/v1/sessions", () => {
       expect(Date.parse(responseBody.created_at)).not.toBeNaN();
 
       // Session renewed assertions
-
       const renewedSessionObject = await session.findOneValidByToken(
         sessionObject.token,
       );
@@ -63,7 +78,7 @@ describe("GET to /api/v1/sessions", () => {
         response.headers.getSetCookie()[0],
       );
       expect(cookieObject).toEqual({
-        name: "session_id",
+        name: "session_token",
         value: sessionObject.token,
         maxAge: session.EXPIRATION_IN_MILLISECONDS / 1000,
         path: "/",
@@ -77,7 +92,7 @@ describe("GET to /api/v1/sessions", () => {
         "wiw6Gezs61i9ahIKomfoFm83Pdg7hnpYIIuiE+AzIVQNm/ojhkca5tQj3YvET5y0";
       const response = await fetch("http://localhost:3000/api/v1/user", {
         headers: {
-          Cookie: `session_id=${invalidSession}`,
+          Cookie: `session_token=${invalidSession}`,
         },
       });
       expect(response.status).toBe(401);
@@ -96,7 +111,7 @@ describe("GET to /api/v1/sessions", () => {
       );
 
       expect(parsedSetCookie).toEqual({
-        name: "session_id",
+        name: "session_token",
         value: "invalid",
         maxAge: -1,
         path: "/",
@@ -120,7 +135,7 @@ describe("GET to /api/v1/sessions", () => {
 
       const response = await fetch("http://localhost:3000/api/v1/user", {
         headers: {
-          Cookie: `session_id=${sessionObject.token}`,
+          Cookie: `session_token=${sessionObject.token}`,
         },
       });
 
@@ -140,7 +155,7 @@ describe("GET to /api/v1/sessions", () => {
 
       // Clear Set-Cookie assertion
       expect(parsedSetCookie).toEqual({
-        name: "session_id",
+        name: "session_token",
         value: "invalid",
         maxAge: -1,
         path: "/",
@@ -158,13 +173,15 @@ describe("GET to /api/v1/sessions", () => {
         username: "UserWithSessionInHalfway",
       });
 
-      const sessionObject = await orchestrator.createSession(createdUser.id);
+      const activatedUser = await orchestrator.activateUser(createdUser);
+
+      const sessionObject = await orchestrator.createSession(activatedUser.id);
 
       jest.useRealTimers();
 
       const response = await fetch("http://localhost:3000/api/v1/user", {
         headers: {
-          Cookie: `session_id=${sessionObject.token}`,
+          Cookie: `session_token=${sessionObject.token}`,
         },
       });
       expect(response.status).toBe(200);

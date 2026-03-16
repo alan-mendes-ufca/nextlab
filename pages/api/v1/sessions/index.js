@@ -34,7 +34,7 @@ async function postHandler(request, response) {
 }
 
 async function deleteHandler(request, response) {
-  const providedToken = request.cookies.session_id;
+  const providedToken = request.cookies.session_token;
   const foundSession = await session.findOneValidByToken(providedToken);
   const expiredSessionObject = await session.expireById(foundSession.id);
 

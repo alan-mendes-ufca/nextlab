@@ -132,7 +132,7 @@ describe("POST to /api/v1/sessions", () => {
         response.headers.getSetCookie()[0],
       );
       expect(cookieObject).toEqual({
-        name: "session_id",
+        name: "session_token",
         value: responseBody.token,
         maxAge: session.EXPIRATION_IN_MILLISECONDS / 1000,
         path: "/",

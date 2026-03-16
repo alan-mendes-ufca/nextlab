@@ -5,10 +5,13 @@ import user from "models/user.js";
 
 const router = createRouter();
 
-router.get(getHandler);
+router.use(controller.injectAnonymousOrUser);
+router.get(controller.canRequest("read:session"), getHandler);
+
+export default router.handler(controller.errorHandlers);
 
 async function getHandler(request, response) {
-  const sessionToken = request.cookies.session_id;
+  const sessionToken = request.cookies.session_token;
 
   const sessionObject = await session.findOneValidByToken(sessionToken);
   const renewedSessionObject = await session.renew(sessionObject.id);
@@ -23,5 +26,3 @@ async function getHandler(request, response) {
   );
   response.status(200).json(userFound);
 }
-
-export default router.handler(controller.errorHandlers);
