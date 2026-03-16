@@ -4,13 +4,22 @@ import activation from "models/activation.js";
 
 const router = createRouter();
 
-router.patch(patchHandler);
+router.use(controller.injectAnonymousOrUser);
+router.patch(
+  controller.canRequest("read:activation_token"),
+  controller.validateToken(),
+  patchHandler,
+);
 
 async function patchHandler(request, response) {
-  const tokenId = request.query.token_id;
-  const usedToken = await activation.markTokenAsUsed(tokenId);
+  const activationTokenId = request.query.token_id;
 
-  await activation.activateUserByUserId(usedToken.user_id);
+  const validActiviationToken =
+    await activation.findOneByValidId(activationTokenId);
+
+  await activation.activateUserByUserId(validActiviationToken.user_id);
+
+  const usedToken = await activation.markTokenAsUsed(activationTokenId);
 
   response.status(200).json(usedToken);
 }

@@ -1,8 +1,9 @@
 import database from "../infra/database.js";
 import email from "../infra/email.js";
 import webServer from "../infra/webserver.js";
-import { NotFoundError } from "../infra/errors.js";
+import { ForbiddenError, NotFoundError } from "../infra/errors.js";
 import user from "./user.js";
+import authorization from "./authorization.js";
 
 const EXPIRATION_IN_MILLISECONDS = 60 * 15 * 1000; // 15 minutes;
 
@@ -38,7 +39,7 @@ async function create(userId) {
   }
 }
 
-async function findOneByActivationToken(tokenId) {
+async function findOneByValidId(tokenId) {
   const findedToken = await runSelectQuery(tokenId);
   return findedToken;
 
@@ -49,16 +50,15 @@ async function findOneByActivationToken(tokenId) {
         FROM user_activation_tokens
         WHERE id = $1
           AND expires_at > NOW()
-          AND used_at IS NULL LIMIT
-        1
+          AND used_at IS NULL 
+        LIMIT 1
         ;`,
       values: [tokenId],
     });
 
     if (!result.rowCount > 0)
       throw new NotFoundError({
-        message:
-          "Token de validação utilizado não foi encontrado no sistema ou expirou.",
+        message: "Token de validação não foi encontrado no sistema ou expirou.",
         action: "Faça um novo cadastro.",
       });
 
@@ -67,7 +67,7 @@ async function findOneByActivationToken(tokenId) {
 }
 
 async function markTokenAsUsed(token) {
-  const foundToken = (await findOneByActivationToken(token)).id;
+  const foundToken = (await findOneByValidId(token)).id;
   const usedToken = await runUpdateQuery(foundToken);
   return usedToken;
 
@@ -77,8 +77,7 @@ async function markTokenAsUsed(token) {
         UPDATE
           user_activation_tokens
         SET used_at    = timezone('utc', now()),
-            updated_at = timezone('utc', now()),
-            expires_at = expires_at - interval '1 year'
+            updated_at = timezone('utc', now())
         WHERE
           id = $1
           RETURNING
@@ -86,11 +85,24 @@ async function markTokenAsUsed(token) {
         ;`,
       values: [token],
     });
+    if (!result.rowCount > 0) {
+      throw new NotFoundError({
+        message: "O token de ativação não foi encontrado no sistema.",
+        action: "Faça um novo cadastro.",
+      });
+    }
     return result.rows[0];
   }
 }
 
 async function activateUserByUserId(userId) {
+  const userToActivate = await user.findOneById(userId);
+  if (!authorization.can(userToActivate, "read:activation_token")) {
+    throw new ForbiddenError({
+      message: "Você não pode mais utilizar tokens de ativação.",
+      action: "Entre em contato com o suporte.",
+    });
+  }
   const activatedUser = await user.setFeatures(userId, [
     "create:session",
     "read:session",
@@ -99,9 +111,10 @@ async function activateUserByUserId(userId) {
 }
 
 const activation = {
+  EXPIRATION_IN_MILLISECONDS,
   sendEmailToUser,
   create,
-  findOneByActivationToken,
+  findOneByValidId,
   markTokenAsUsed,
   activateUserByUserId,
 };

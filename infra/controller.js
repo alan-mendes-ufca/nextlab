@@ -11,6 +11,7 @@ import {
 import session from "models/session.js";
 import user from "models/user.js";
 import authorization from "models/authorization.js";
+import { validate, version } from "uuid";
 
 function onNoMatchHandler(request, response) {
   const publicErrorObject = new MethodNotAllowedError();
@@ -94,9 +95,21 @@ function canRequest(feature) {
     if (authorization.can(userTryingToRequest, feature)) return next();
 
     throw new ForbiddenError({
-      message: "Voçê não possui permissão para executar essa ação.",
+      message: "Você não possui permissão para executar esta ação.",
       action: `Verifique se o seu usuário possui a feature '${feature}'`,
     });
+  };
+}
+
+function validateToken() {
+  return function isUuid(request, response, next) {
+    const id = request.query.token_id;
+    if (!(validate(id) && version(id) == 4)) {
+      throw new ValidationError({
+        message: "Token de ativação inválido.",
+      });
+    }
+    return next();
   };
 }
 
@@ -109,6 +122,7 @@ const controller = {
   clearSessionCookie,
   injectAnonymousOrUser,
   canRequest,
+  validateToken,
 };
 
 export default controller;

@@ -56,8 +56,7 @@ describe("Use case: Registration Flow (all successful)", () => {
       lastEmail.text,
     );
 
-    const findedToken =
-      await activation.findOneByActivationToken(activationToken);
+    const findedToken = await activation.findOneByValidId(activationToken);
 
     expect(findedToken.user_id).toEqual(createdUserResponseBody.id);
     expect(findedToken.used_at).toEqual(null);
