@@ -7,7 +7,7 @@ const router = createRouter();
 router.use(controller.injectAnonymousOrUser);
 router.patch(
   controller.canRequest("read:activation_token"),
-  controller.validateToken(),
+  controller.validateTokenType(),
   patchHandler,
 );
 

@@ -101,7 +101,7 @@ function canRequest(feature) {
   };
 }
 
-function validateToken() {
+function validateTokenType() {
   return function isUuid(request, response, next) {
     const id = request.query.token_id;
     if (!(validate(id) && version(id) == 4)) {
@@ -122,7 +122,7 @@ const controller = {
   clearSessionCookie,
   injectAnonymousOrUser,
   canRequest,
-  validateToken,
+  validateTokenType,
 };
 
 export default controller;
