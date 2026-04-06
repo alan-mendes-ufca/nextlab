@@ -76,7 +76,11 @@ describe("Use case: Registration Flow (all successful)", () => {
     const activatedUser = await user.findOneByUsername(
       createdUserResponseBody.username,
     );
-    expect(activatedUser.features).toEqual(["create:session", "read:session"]);
+    expect(activatedUser.features).toEqual([
+      "create:session",
+      "read:session",
+      "update:user",
+    ]);
 
     createdUserResponseBody = activatedUser;
   });

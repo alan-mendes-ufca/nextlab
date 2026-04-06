@@ -1301,7 +1301,7 @@ npm error     peerOptional @typescript-eslint/eslint-plugin@"^6.0.0 || ^7.0.0 ||
     - **Utilizado especificamente para armazenar senhas**
     - Já inclui o salt no HASH gerado, com isso não precisa armazena-lo no banco
     - A cada ROUD, o custo aumenta de forma exponencial; necessita de um balanceamento
-    - **Ainda, o Bcrypt gera o identificador concatenando sua versão, o número de round, o salt e o hash (separados por $)**
+    - **Ainda, o Bcrypt gera o identificador concatenando sua versão, o número de rounds, o salt e o hash (separados por $)**
     - Todos esses fatores contibuem no aumento do custo de processamento pro hacker
 
 - Nível 1
@@ -1326,8 +1326,26 @@ npm error     peerOptional @typescript-eslint/eslint-plugin@"^6.0.0 || ^7.0.0 ||
     - dados visíveis (vulnerabilidade)
 
 - `Session-based Authentication`
-  - Ao autenticar-se, a API gera um `Opaque Session Token` que é salvo no banco de dados juntamente com sua **data de validade**. Assim, ao invés de informações sensíveis ficares salvos no cookie, apenas esse **sesson_id** estaria sendo transmitido. Outro problema resolvido é a necessidade de recalcular o hash múltiplas vezes.
+  - Ao autenticar-se, a API gera um `Opaque Session Token` que é _salvo no banco de dados (stateful)_ juntamente com sua **data de validade**. Assim, ao invés de informações sensíveis ficares salvos no cookie, apenas esse **sesson_id** estaria sendo transmitido. Outro problema resolvido é a necessidade de recalcular o hash múltiplas vezes.
   - Um problema referente a essa técnica seria o `Session hijacking (sequestro de sessão)`, realizado por meio de **engenharia social**; consiste em copiar os cookies de sessão sequestratos e hackear as contas do usuário.
+
+- `JWT based authentication`
+  - O _JSON Web Token_ consistem em um conjunto de dados encodados em `base64url`, esse identificador é formado por: um **hearder** (metadados) + **payload** + **assinatura** (garante integridade do token);
+  - esse identificador é armazenado apenas no cookie, tornando essa configuração _stateless_;
+    - `base64url`: ferramenta que codifica o código de máquina de um dado, seguindo esses passos:
+      1. O binário de um dado é dividido em pedaços de 6 bit (2⁶ = 64), onde cada bit representa um numéro/chave na **tabela base64**
+      2. Calcula-se o resultado concatenando os valores encontrados na tabela
+    - **assinatura** =
+
+    ```js
+    const secretkey = process.env.JTW_SECRET_KEY;
+
+    // sha-256
+    const signature = hash(
+      `${base64EncodedHeader}.${base64EncodedPayload}`,
+      secretkey,
+    );
+    ```
 
 ---
 

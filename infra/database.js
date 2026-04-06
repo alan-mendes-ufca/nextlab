@@ -28,7 +28,7 @@ async function getNewClient() {
     user: process.env.POSTGRES_USER,
     database: process.env.POSTGRES_DB,
     password: process.env.POSTGRES_PASSWORD, // objeto javascript
-    ssl: getSSLValues(),
+    ssl: getSSLValues(), // Ferramente que protege a conexão entre o servidor e o banco de invasores - por meio de criptografia.
   });
 
   await client.connect();
