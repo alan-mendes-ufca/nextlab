@@ -126,6 +126,11 @@ function extractActivationTokenFromEmail(emailBody) {
   return match?.[1];
 }
 
+async function addFeaturesToUser(userObject, features) {
+  const updatedUser = user.addFeatures(userObject.id, features);
+  return updatedUser;
+}
+
 const orchestrator = {
   waitForAllServices,
   clearDB,
@@ -137,6 +142,7 @@ const orchestrator = {
   deleteAllEmails,
   getLastEmail,
   extractActivationTokenFromEmail,
+  addFeaturesToUser,
 };
 
 export default orchestrator;
