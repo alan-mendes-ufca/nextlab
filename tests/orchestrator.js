@@ -44,7 +44,7 @@ async function waitForAllServices() {
       maxTimeout: maxTimeout,
       onRetry: (error, attempt) => {
         console.log(
-          `Attempt: ${attempt} - Failed to fetch status page: ${error.message}`,
+          `Attempt: ${attempt} - Failed to fetch email catcher server: ${error.message}`,
         );
       },
     });
@@ -54,7 +54,10 @@ async function waitForAllServices() {
         const response = await fetch(emailHttpUrl);
         if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
       } catch (error) {
-        console.error("Não foi possível buscar a páguina de status: ", error);
+        console.error(
+          "Não foi possível buscar o servidor do email catcher: ",
+          error,
+        );
         throw error;
       }
     }
