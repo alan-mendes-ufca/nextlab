@@ -30,8 +30,6 @@ describe("POST to /api/v1/users", () => {
       expect(responseBody).toEqual({
         id: responseBody.id,
         username: "alanmendes",
-        email: "alan.mendes@aluno.ufca.edu.br",
-        password: responseBody.password,
         features: ["read:activation_token"],
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
@@ -77,8 +75,6 @@ describe("POST to /api/v1/users", () => {
       expect(responseBody).toEqual({
         id: responseBody.id,
         username: "emailDuplicado1",
-        email: "emailDuplicado@gmail.com",
-        password: responseBody.password,
         features: ["read:activation_token"],
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,

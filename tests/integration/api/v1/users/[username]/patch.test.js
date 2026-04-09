@@ -1,6 +1,7 @@
 import password from "models/password.js";
 import orchestrator from "../../../../../orchestrator.js";
 import { version as uuidVersion } from "uuid";
+import user from "models/user.js";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -201,7 +202,12 @@ describe("PATCH to /api/v1/users/[username]", () => {
         username: "uniqueUser2",
         email: responseBody.email,
         password: responseBody.password,
-        features: ["create:session", "read:session", "update:user"],
+        features: [
+          "create:session",
+          "read:session",
+          "update:user",
+          "read:status",
+        ],
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
       });
@@ -243,7 +249,12 @@ describe("PATCH to /api/v1/users/[username]", () => {
         username: responseBody.username,
         email: responseBody.email,
         password: responseBody.password,
-        features: ["create:session", "read:session", "update:user"],
+        features: [
+          "create:session",
+          "read:session",
+          "update:user",
+          "read:status",
+        ],
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
       });
@@ -277,18 +288,19 @@ describe("PATCH to /api/v1/users/[username]", () => {
           }),
         },
       );
-      const responseBody = await response.json();
       expect(response.status).toBe(200);
+
+      const updatedUser = await user.findOneById(createdUser.id);
 
       const correctPasswordMatch = await password.compare(
         "senha456",
-        responseBody.password,
+        updatedUser.password,
       );
       expect(correctPasswordMatch).toBe(true);
 
       const incorrectPasswordMatch = await password.compare(
         "senhaIncorreta",
-        responseBody.password,
+        updatedUser.password,
       );
       expect(incorrectPasswordMatch).toBe(false);
     });

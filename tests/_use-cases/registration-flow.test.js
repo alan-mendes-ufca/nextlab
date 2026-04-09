@@ -33,11 +33,10 @@ describe("Use case: Registration Flow (all successful)", () => {
     expect(createdUserResponse.status).toBe(201);
 
     createdUserResponseBody = await createdUserResponse.json();
+
     expect(createdUserResponseBody).toEqual({
       id: createdUserResponseBody.id,
       username: "RegistrationFlow",
-      email: "registration.flow@curso.dev",
-      password: createdUserResponseBody.password,
       // ação:objeto:modificador
       features: ["read:activation_token"],
       created_at: createdUserResponseBody.created_at,
@@ -80,6 +79,7 @@ describe("Use case: Registration Flow (all successful)", () => {
       "create:session",
       "read:session",
       "update:user",
+      "read:status",
     ]);
 
     createdUserResponseBody = activatedUser;
@@ -115,6 +115,8 @@ describe("Use case: Registration Flow (all successful)", () => {
       },
     });
     const responseBody = await response.json();
+
+    delete createdUserResponseBody.password;
     expect(responseBody).toEqual({
       ...createdUserResponseBody,
       created_at: createdUserResponseBody.created_at.toISOString(),

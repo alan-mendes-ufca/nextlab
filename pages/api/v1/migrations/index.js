@@ -1,18 +1,44 @@
 import { createRouter } from "next-connect";
 import controller from "../../../../infra/controller";
 import migrator from "../../../../models/migrator.js";
+import authorization from "models/authorization";
 
 const router = createRouter();
 
-router.get(getHandler).post(postHandler);
+router.use(controller.injectAnonymousOrUser);
+router.get(controller.canRequest("read:migrations"), getHandler);
+router.post(controller.canRequest("create:migrations"), postHandler);
 
 export default router.handler(controller.errorHandlers);
 
 async function getHandler(request, response) {
-  response.status(200).json(await migrator.listPendingMigrations());
+  const userTryingToGet = request.context.user;
+  const pendingMigrations = (await migrator.listPendingMigrations())
+    .pendingMigrations;
+
+  const secureOutputValues = authorization.filterOutput(
+    userTryingToGet,
+    "read:migrations",
+    pendingMigrations,
+  );
+
+  response.status(200).json(secureOutputValues);
 }
 
 async function postHandler(request, response) {
-  const result = await migrator.runPendingMigrations();
-  response.status(result.appliedMigrations.length > 0 ? 201 : 200).json(result);
+  const userTryingToGet = request.context.user;
+  const appliedMigrations = (await migrator.runPendingMigrations())
+    .appliedMigrations;
+
+  const secureOutputValues = authorization.filterOutput(
+    userTryingToGet,
+    "read:migrations",
+    appliedMigrations,
+  );
+
+  if (appliedMigrations.length > 0) {
+    response.status(201).json(secureOutputValues);
+  }
+
+  response.status(200).json(secureOutputValues);
 }
