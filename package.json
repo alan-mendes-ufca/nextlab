@@ -22,6 +22,7 @@
     "db:reset": "node infra/scripts/db-reset.cjs",
     "migrations:create": "node-pg-migrate --migrations-dir infra/migrations create",
     "migrations:up": "node-pg-migrate --migrations-dir infra/migrations  --envPath .env.development up",
+    "migrations:up:dry": "node-pg-migrate --migrations-dir infra/migrations  --envPath .env.development up --dry-run",
     "prepare": "husky",
     "commit": "cz"
   },
