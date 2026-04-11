@@ -37,7 +37,7 @@ describe("DELETE to /api/v1/sessions", () => {
         now: new Date(Date.now() - session.EXPIRATION_IN_MILLISECONDS),
       });
 
-      const createdUser = await orchestrator.createUser({});
+      const createdUser = await orchestrator.createUser();
       const validToken = await orchestrator.createSession(createdUser.id);
 
       jest.useRealTimers();
@@ -61,7 +61,7 @@ describe("DELETE to /api/v1/sessions", () => {
     });
 
     test("With valid session", async () => {
-      const createdUser = await orchestrator.createUser({});
+      const createdUser = await orchestrator.createUser();
       const sessionObject = await orchestrator.createSession(createdUser.id);
       const validToken = sessionObject.token;
       const response = await fetch("http://localhost:3000/api/v1/sessions", {

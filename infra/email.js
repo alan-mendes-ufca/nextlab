@@ -1,6 +1,7 @@
-import nodemaler from "nodemailer";
+import nodemailer from "nodemailer";
+import { ServicesError } from "./errors.js";
 
-const transporter = nodemaler.createTransport({
+const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_SMTP_HOST,
   port: process.env.EMAIL_SMTP_PORT,
   auth: {
@@ -8,10 +9,20 @@ const transporter = nodemaler.createTransport({
     pass: process.env.EMAIL_SMTP_PASSWORD,
   },
   secure: process.env.NODE_ENV === "production",
+  connectionTimeout: 5000,
 });
 
 async function send(mailOptions) {
-  transporter.sendMail(mailOptions);
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    throw new ServicesError({
+      message: "Não foi possível enviar o email.",
+      action: "Verifique se o serviço de email está disponível.",
+      cause: error,
+      context: mailOptions,
+    });
+  }
 }
 
 const email = {

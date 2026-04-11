@@ -192,7 +192,7 @@ describe("POST to /api/v1/users", () => {
   });
   describe("Default User", () => {
     test("With unique and valid data", async () => {
-      const createdUser = await orchestrator.createUser({});
+      const createdUser = await orchestrator.createUser();
       const activatedUser = await orchestrator.activateUser(createdUser);
       const sessionObject = await orchestrator.createSession(activatedUser.id);
 

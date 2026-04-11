@@ -33,7 +33,7 @@ describe("GET to /api/v1/status", () => {
 
   describe("Default user", () => {
     test("Retrieving current system status", async () => {
-      const createdUser = await orchestrator.createUser({});
+      const createdUser = await orchestrator.createUser();
       const activatedUser = await orchestrator.activateUser(createdUser);
       const sessionObject = await orchestrator.createSession(activatedUser.id);
 
@@ -65,7 +65,7 @@ describe("GET to /api/v1/status", () => {
 
   describe("Previleged user", () => {
     test("Retrieving current system status", async () => {
-      const createdUser = await orchestrator.createUser({});
+      const createdUser = await orchestrator.createUser();
       const activatedUser = await orchestrator.activateUser(createdUser);
       const sessionObject = await orchestrator.createSession(activatedUser.id);
 

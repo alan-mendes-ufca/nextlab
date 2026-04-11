@@ -21,7 +21,7 @@ describe("POST to /api/v1/sessions", () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: "user@gmail.com",
+          email: "emailErrado@gmail.com",
           password: "senha-correta",
         }),
       });
@@ -62,7 +62,7 @@ describe("POST to /api/v1/sessions", () => {
       });
     });
     test("With incorrect 'email' and incorrect 'password'", async () => {
-      await orchestrator.createUser({});
+      await orchestrator.createUser();
       const response = await fetch("http://localhost:3000/api/v1/sessions", {
         method: "POST",
         headers: {

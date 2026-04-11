@@ -150,7 +150,7 @@ describe("PATCH to /api/v1/users/[username]", () => {
     });
 
     test("With nonexistent 'username'", async () => {
-      const createdUser = await orchestrator.createUser({});
+      const createdUser = await orchestrator.createUser();
       const activatedUser = await orchestrator.activateUser(createdUser);
       const sessionObject = await orchestrator.createSession(activatedUser.id);
 
@@ -323,7 +323,7 @@ describe("PATCH to /api/v1/users/[username]", () => {
         activatedPrivilegedUser.id,
       );
 
-      const defaultUser = await orchestrator.createUser({});
+      const defaultUser = await orchestrator.createUser();
       const response = await fetch(
         `http://localhost:3000/api/v1/users/${defaultUser.username}`,
         {

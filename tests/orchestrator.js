@@ -63,6 +63,7 @@ async function waitForAllServices() {
     }
   }
 }
+
 async function clearDB() {
   await db.query("DROP schema public cascade; create schema public;");
 }
@@ -79,13 +80,10 @@ async function totalAppliedMigrations() {
 async function createUser(userObject) {
   const createdUser = await user.create({
     username:
-      userObject.username || faker.internet.username().replace(/[_.-]/g, ""),
-    email: userObject.email || faker.internet.email(),
-    password: userObject.password || "password",
+      userObject?.username || faker.internet.username().replace(/[_.-]/g, ""),
+    email: userObject?.email || faker.internet.email(),
+    password: userObject?.password || "password",
   });
-
-  const activationToken = await activation.create(createdUser.id);
-  await activation.sendEmailToUser(createdUser, activationToken);
   return createdUser;
 }
 
