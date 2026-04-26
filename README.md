@@ -1301,7 +1301,7 @@ npm error     peerOptional @typescript-eslint/eslint-plugin@"^6.0.0 || ^7.0.0 ||
     - **Utilizado especificamente para armazenar senhas**
     - Já inclui o salt no HASH gerado, com isso não precisa armazena-lo no banco
     - A cada ROUD, o custo aumenta de forma exponencial; necessita de um balanceamento
-    - **Ainda, o Bcrypt gera o identificador concatenando sua versão, o número de round, o salt e o hash (separados por $)**
+    - **Ainda, o Bcrypt gera o identificador concatenando sua versão, o número de rounds, o salt e o hash (separados por $)**
     - Todos esses fatores contibuem no aumento do custo de processamento pro hacker
 
 - Nível 1
@@ -1326,8 +1326,26 @@ npm error     peerOptional @typescript-eslint/eslint-plugin@"^6.0.0 || ^7.0.0 ||
     - dados visíveis (vulnerabilidade)
 
 - `Session-based Authentication`
-  - Ao autenticar-se, a API gera um `Opaque Session Token` que é salvo no banco de dados juntamente com sua **data de validade**. Assim, ao invés de informações sensíveis ficares salvos no cookie, apenas esse **sesson_id** estaria sendo transmitido. Outro problema resolvido é a necessidade de recalcular o hash múltiplas vezes.
+  - Ao autenticar-se, a API gera um `Opaque Session Token` que é _salvo no banco de dados (stateful)_ juntamente com sua **data de validade**. Assim, ao invés de informações sensíveis ficares salvos no cookie, apenas esse **sesson_id** estaria sendo transmitido. Outro problema resolvido é a necessidade de recalcular o hash múltiplas vezes.
   - Um problema referente a essa técnica seria o `Session hijacking (sequestro de sessão)`, realizado por meio de **engenharia social**; consiste em copiar os cookies de sessão sequestratos e hackear as contas do usuário.
+
+- `JWT based authentication`
+  - O _JSON Web Token_ consistem em um conjunto de dados encodados em `base64url`, esse identificador é formado por: um **hearder** (metadados) + **payload** + **assinatura** (garante integridade do token);
+  - esse identificador é armazenado apenas no cookie, tornando essa configuração _stateless_;
+    - `base64url`: ferramenta que codifica o código de máquina de um dado, seguindo esses passos:
+      1. O binário de um dado é dividido em pedaços de 6 bit (2⁶ = 64), onde cada bit representa um numéro/chave na **tabela base64**
+      2. Calcula-se o resultado concatenando os valores encontrados na tabela
+    - **assinatura** =
+
+    ```js
+    const secretkey = process.env.JTW_SECRET_KEY;
+
+    // sha-256
+    const signature = hash(
+      `${base64EncodedHeader}.${base64EncodedPayload}`,
+      secretkey,
+    );
+    ```
 
 ---
 
@@ -1364,7 +1382,7 @@ HELO alan
 250 Ok EventMachine SMTP Server
 MAIL FROM: <alan@gmail.com>
 250 Ok
-RCPT TO: <contato@curso.dev>
+RCPT TO: <contato@nextlab.tec.br>
 250 Ok
 DATA:
 354 Send it
@@ -1430,5 +1448,62 @@ module.exports = async () => {
 ```
 
 Isso cria uma exceção para que o Jest transpile apenas o `node-pg-migrate` e o `glob`, mantendo o resto do `node_modules` ignorado.
+
+---
+
+# Regex
+
+![alt text](imgs/regex.png)
+
+---
+
+# O que realmente é SPF, DKIM e DMARC ?
+
+- Um conjunto de configurações extremamente importante de se saber **ao configurar um serviço de email externo**. Protocolos de segurança que garantem confiabilidade numa troca de mensagens.
+
+- SIMPLE MAIL TRANSFER PROTOCOL foi definido em 1982, em um RFC. Como parte dessa padronização temos a estrutura de um cabeçalho de email:
+
+  ```txt
+  MAIL FROM: ecd528cb-660b-4eda-8eac@servidor.com
+  // Define um servidor técnico de retorno para um retorno de estado de um email, ainda definindo de forma granular qual mensagem/email aquele estado pertence por meio de um uuid
+
+  // Conteúdo:
+  FROM: Pessoa <pessoa@servidor.com>
+  Subject: Assunto importante
+
+  Olá, estou contatando ...
+
+  ```
+
+  - Essa primeira estrutura não garantia confiabilidade NENHUMA em relação a fraudes!
+
+- `SPF (Sender Policy Framework)`: **Protege a origem** controlando quais servidores podem enviar um email declarando determinado domínio.
+  - Além da mensagem, o servidor _inbound_ passa a receber, também, o IP do servidor que envia o email. Assim, utilizando os registros cadastrados em um DNS (que é público), obtem-se uma lista de IPs de servidores que possuem autorização para enviar emails. Exemplo de estrutura: `TXT v=spf1 (qualificadores)mecanismos ~all`
+
+- `DKIM (DomainKeys Identified Mail)`: **Protege o conteúdo** garantindo que o conteúdo da mensagem não foi alterado durando o roteamento da mensagem. Utiliza uma assinatura criptográfica que evita o tampering do email.
+  - **Par de chaves assimétricas**: o hash da mensagem é calculado e assinado por uma chave privada. Outra chave, pública, presente no DNS do domínio, é utilizada para verificar se a assinatura recebida foi produzida pela chave privada.
+
+  - Nova formatação do cabeçalho:
+
+  ```txt
+  MAIL FROM: ecd528cb-660b-4eda-8eac@apple.com
+  DKIM-Signature:
+    d=apple.com // Domínio para busca DNS
+    s=publickey1 // Identificador para a chave pública no DNS
+    h=from:subject:to:date // Cabeçalhos que vão participar da assinatura
+    bh=A9B2BF5B3A02C9451CE // Body Hash
+    b=BE1898CF73A2F4E870D179B22AA39E // Assinatura
+
+  FROM: Pessoa <pessoa@servidor.com>
+  Subject: Assunto importante
+
+  Olá, estou contatando ...
+
+  ```
+
+- `DMARC (Domain-based Message Authentication, Reporting and Conformance)`:
+  - Garante que o domínio declarado no cabeçalho _FROM_, _MAIL FROM_ e _DKIM-Signature_ sejam iguais.
+  - Envia relatórios diários com estatísticas agregadas para o detentor do domínio.
+  - Define políticas sobre o que o servidor pode fazer durante uma situação crítica.
 
 ---

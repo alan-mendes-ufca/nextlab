@@ -21,7 +21,7 @@ describe("POST to /api/v1/sessions", () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: "user@gmail.com",
+          email: "emailErrado@gmail.com",
           password: "senha-correta",
         }),
       });
@@ -30,7 +30,7 @@ describe("POST to /api/v1/sessions", () => {
 
       const responseBody = await response.json();
       expect(responseBody).toEqual({
-        name: "UnautorizedError",
+        name: "UnauthorizedError",
         action: "Verifique se os dados enviados estão corretos",
         message: "Dados de autenticação não conferem.",
         status_code: 401,
@@ -55,14 +55,14 @@ describe("POST to /api/v1/sessions", () => {
 
       const responseBody = await response.json();
       expect(responseBody).toEqual({
-        name: "UnautorizedError",
+        name: "UnauthorizedError",
         action: "Verifique se os dados enviados estão corretos",
         message: "Dados de autenticação não conferem.",
         status_code: 401,
       });
     });
     test("With incorrect 'email' and incorrect 'password'", async () => {
-      await orchestrator.createUser({});
+      await orchestrator.createUser();
       const response = await fetch("http://localhost:3000/api/v1/sessions", {
         method: "POST",
         headers: {
@@ -78,16 +78,19 @@ describe("POST to /api/v1/sessions", () => {
 
       const responseBody = await response.json();
       expect(responseBody).toEqual({
-        name: "UnautorizedError",
+        name: "UnauthorizedError",
         action: "Verifique se os dados enviados estão corretos",
         message: "Dados de autenticação não conferem.",
         status_code: 401,
       });
     });
+
     test("With correct 'email' and correct 'password'", async () => {
       const createdUser = await orchestrator.createUser({
         password: "correctPassword",
       });
+
+      await orchestrator.activateUser(createdUser);
 
       const response = await fetch("http://localhost:3000/api/v1/sessions", {
         method: "POST",
@@ -129,7 +132,7 @@ describe("POST to /api/v1/sessions", () => {
         response.headers.getSetCookie()[0],
       );
       expect(cookieObject).toEqual({
-        name: "session_id",
+        name: "session_token",
         value: responseBody.token,
         maxAge: session.EXPIRATION_IN_MILLISECONDS / 1000,
         path: "/",

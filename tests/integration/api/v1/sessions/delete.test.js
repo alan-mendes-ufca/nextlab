@@ -17,7 +17,7 @@ describe("DELETE to /api/v1/sessions", () => {
       const response = await fetch("http://localhost:3000/api/v1/sessions", {
         method: "DELETE",
         headers: {
-          cookie: `session_id=${invalidToken}`,
+          cookie: `session_token=${invalidToken}`,
         },
       });
 
@@ -25,7 +25,7 @@ describe("DELETE to /api/v1/sessions", () => {
 
       const responseBody = await response.json();
       expect(responseBody).toEqual({
-        name: "UnautorizedError",
+        name: "UnauthorizedError",
         message: "Usuário não possui sessão ativa.",
         action: "Verifique se o usuário está logado e tente novamente.",
         status_code: 401,
@@ -37,7 +37,7 @@ describe("DELETE to /api/v1/sessions", () => {
         now: new Date(Date.now() - session.EXPIRATION_IN_MILLISECONDS),
       });
 
-      const createdUser = await orchestrator.createUser({});
+      const createdUser = await orchestrator.createUser();
       const validToken = await orchestrator.createSession(createdUser.id);
 
       jest.useRealTimers();
@@ -45,7 +45,7 @@ describe("DELETE to /api/v1/sessions", () => {
       const response = await fetch("http://localhost:3000/api/v1/sessions", {
         method: "DELETE",
         headers: {
-          cookie: `session_id=${validToken}`,
+          cookie: `session_token=${validToken}`,
         },
       });
 
@@ -53,7 +53,7 @@ describe("DELETE to /api/v1/sessions", () => {
 
       const responseBody = await response.json();
       expect(responseBody).toEqual({
-        name: "UnautorizedError",
+        name: "UnauthorizedError",
         message: "Usuário não possui sessão ativa.",
         action: "Verifique se o usuário está logado e tente novamente.",
         status_code: 401,
@@ -61,13 +61,13 @@ describe("DELETE to /api/v1/sessions", () => {
     });
 
     test("With valid session", async () => {
-      const createdUser = await orchestrator.createUser({});
+      const createdUser = await orchestrator.createUser();
       const sessionObject = await orchestrator.createSession(createdUser.id);
       const validToken = sessionObject.token;
       const response = await fetch("http://localhost:3000/api/v1/sessions", {
         method: "DELETE",
         headers: {
-          Cookie: `session_id=${validToken}`,
+          Cookie: `session_token=${validToken}`,
         },
       });
 
@@ -86,7 +86,7 @@ describe("DELETE to /api/v1/sessions", () => {
       );
 
       expect(parsedSetCookie).toEqual({
-        name: "session_id",
+        name: "session_token",
         value: "invalid",
         maxAge: -1,
         path: "/",
@@ -97,7 +97,7 @@ describe("DELETE to /api/v1/sessions", () => {
       const response2 = await fetch("http://localhost:3000/api/v1/sessions", {
         method: "DELETE",
         headers: {
-          cookie: `session_id=${validToken}`,
+          cookie: `session_token=${validToken}`,
         },
       });
 

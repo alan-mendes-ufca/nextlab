@@ -4,6 +4,7 @@ import db from "../infra/database.js";
 import migrator from "../models/migrator.js";
 import user from "../models/user.js";
 import session from "../models/session.js";
+import activation from "../models/activation.js";
 
 const emailHttpUrl = `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}`;
 
@@ -43,7 +44,7 @@ async function waitForAllServices() {
       maxTimeout: maxTimeout,
       onRetry: (error, attempt) => {
         console.log(
-          `Attempt: ${attempt} - Failed to fetch status page: ${error.message}`,
+          `Attempt: ${attempt} - Failed to fetch email catcher server: ${error.message}`,
         );
       },
     });
@@ -53,18 +54,22 @@ async function waitForAllServices() {
         const response = await fetch(emailHttpUrl);
         if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
       } catch (error) {
-        console.error("Não foi possível buscar a páguina de status: ", error);
+        console.error(
+          "Não foi possível buscar o servidor do email catcher: ",
+          error,
+        );
         throw error;
       }
     }
   }
 }
+
 async function clearDB() {
   await db.query("DROP schema public cascade; create schema public;");
 }
 
 async function runPendingMigrations() {
-  await migrator.runPedingMigrations();
+  await migrator.runPendingMigrations();
 }
 
 async function totalAppliedMigrations() {
@@ -73,12 +78,17 @@ async function totalAppliedMigrations() {
 }
 
 async function createUser(userObject) {
-  return await user.create({
+  const createdUser = await user.create({
     username:
-      userObject.username || faker.internet.username().replace(/[_.-]/g, ""),
-    email: userObject.email || faker.internet.email(),
-    password: userObject.password || "password",
+      userObject?.username || faker.internet.username().replace(/[_.-]/g, ""),
+    email: userObject?.email || faker.internet.email(),
+    password: userObject?.password || "password",
   });
+  return createdUser;
+}
+
+async function activateUser(inactivaUser) {
+  return await activation.activateUserByUserId(inactivaUser.id);
 }
 
 async function createSession(userId) {
@@ -98,8 +108,9 @@ async function getLastEmail() {
 
   const emailListResponse = await fetch(`${emailHttpUrl}/messages`);
   const emailListBody = await emailListResponse.json();
-
   const lastEmailItem = emailListBody.pop();
+
+  if (!lastEmailItem) return null;
 
   const emailTextResponse = await fetch(
     `${emailHttpUrl}/messages/${lastEmailItem.id}.plain`,
@@ -110,15 +121,29 @@ async function getLastEmail() {
   return lastEmailItem;
 }
 
+function extractActivationTokenFromEmail(emailBody) {
+  const regex = /\/cadastro\/ativar\/([a-zA-Z0-9\-_]+)/;
+  const match = emailBody.match(regex);
+  return match?.[1];
+}
+
+async function addFeaturesToUser(userObject, features) {
+  const updatedUser = user.addFeatures(userObject.id, features);
+  return updatedUser;
+}
+
 const orchestrator = {
   waitForAllServices,
   clearDB,
   runPendingMigrations,
   totalAppliedMigrations,
   createUser,
+  activateUser,
   createSession,
   deleteAllEmails,
   getLastEmail,
+  extractActivationTokenFromEmail,
+  addFeaturesToUser,
 };
 
 export default orchestrator;

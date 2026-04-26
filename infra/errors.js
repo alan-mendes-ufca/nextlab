@@ -20,14 +20,14 @@ export class InternalServerError extends Error {
 }
 
 export class ServicesError extends Error {
-  constructor({ message, cause }) {
-    super(message || "Ocorreu um erro de serviço.", {
+  constructor({ cause, message, action, context }) {
+    super(message || "Serviço indisponível no momento.", {
       cause,
     });
-
-    this.name = "ServicesError";
-    this.action = "Verifique a disponibilidade do serviço";
+    this.name = "ServiceError";
+    this.action = action || "Verifique se o serviço está disponível.";
     this.statusCode = 503;
+    this.context = context;
   }
 
   toJSON() {
@@ -36,6 +36,7 @@ export class ServicesError extends Error {
       message: this.message,
       action: this.action,
       status_code: this.statusCode,
+      context: this.context,
     };
   }
 }
@@ -59,7 +60,7 @@ export class MethodNotAllowedError extends Error {
   }
 }
 
-export class ValitationError extends Error {
+export class ValidationError extends Error {
   constructor({ message, action }) {
     super(message || "Error de validação.");
     this.name = "ValidationError";
@@ -87,6 +88,7 @@ export class NotFoundError extends Error {
       action || "Verifique se os parâmetros enviados na consulta estão certos.";
     this.statusCode = 404;
   }
+
   toJSON() {
     return {
       name: this.name,
@@ -97,13 +99,32 @@ export class NotFoundError extends Error {
   }
 }
 
-export class UnautorizedError extends Error {
+export class UnauthorizedError extends Error {
   constructor({ message, action }) {
     super(message || "Dados de autenticação não conferem.");
 
-    this.name = "UnautorizedError";
+    this.name = "UnauthorizedError";
     this.action = action || "Verifique se os dados enviados estão corretos";
     this.statusCode = 401;
+  }
+
+  toJSON() {
+    return {
+      name: this.name,
+      message: this.message,
+      action: this.action,
+      status_code: this.statusCode,
+    };
+  }
+}
+
+export class ForbiddenError extends Error {
+  constructor({ message, action }) {
+    super(message || "Acesso Negado");
+    this.name = "ForbiddenError";
+    this.action =
+      action || "Verifique as features necessárias antes de continuar";
+    this.statusCode = 403;
   }
 
   toJSON() {

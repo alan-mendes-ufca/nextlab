@@ -22,6 +22,7 @@
     "db:reset": "node infra/scripts/db-reset.cjs",
     "migrations:create": "node-pg-migrate --migrations-dir infra/migrations create",
     "migrations:up": "node-pg-migrate --migrations-dir infra/migrations  --envPath .env.development up",
+    "migrations:up:dry": "node-pg-migrate --migrations-dir infra/migrations  --envPath .env.development up --dry-run",
     "prepare": "husky",
     "commit": "cz"
   },
@@ -53,6 +54,7 @@
     "@commitlint/config-conventional": "20.4.1",
     "@faker-js/faker": "10.3.0",
     "@secretlint/secretlint-rule-preset-recommend": "11.3.1",
+    "@types/jest": "^30.0.0",
     "baseline-browser-mapping": "^2.9.19",
     "commitizen": "4.3.1",
     "concurrently": "9.2.1",
@@ -71,5 +73,8 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "engines": {
+    "node": "24"
   }
 }

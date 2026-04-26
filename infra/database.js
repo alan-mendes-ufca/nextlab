@@ -1,4 +1,5 @@
 import pkg from "pg";
+
 const { Client } = pkg;
 import { ServicesError } from "./errors.js";
 
@@ -10,11 +11,10 @@ async function query(queryObject) {
     const result = await client.query(queryObject);
     return result;
   } catch (error) {
-    const servicesError = new ServicesError({
+    throw new ServicesError({
       message: "Erro de conexão no banco ou query.",
       cause: error,
     });
-    throw servicesError;
   } finally {
     await client?.end();
   }
@@ -28,7 +28,7 @@ async function getNewClient() {
     user: process.env.POSTGRES_USER,
     database: process.env.POSTGRES_DB,
     password: process.env.POSTGRES_PASSWORD, // objeto javascript
-    ssl: getSSLValues(),
+    ssl: getSSLValues(), // Ferramente que protege a conexão entre o servidor e o banco de invasores - por meio de criptografia.
   });
 
   await client.connect();
@@ -41,14 +41,42 @@ function getSSLValues() {
     return process.env.POSTGRES_CA;
   }
 
-  return process.env.NODE_ENV === "development" ||
-    process.env.NODE_ENV === "test"
-    ? false
-    : true;
+  return !(
+    process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test"
+  );
+}
+
+function updatedAt() {
+  // return ISO 8601 data format
+  return new Date().toISOString();
+}
+
+async function databaseVersionResult() {
+  return (await query("SHOW server_version;")).rows[0].server_version;
+}
+
+async function maxConnections() {
+  return (await query("SHOW max_connections;")).rows[0].max_connections;
+}
+
+async function openedConnectionsValues() {
+  return (
+    // Querys parametrizadas
+    (
+      await query({
+        text: "SELECT COUNT(*)::int FROM pg_stat_activity WHERE datname = $1;",
+        values: [process.env.POSTGRES_DB],
+      })
+    ).rows[0].count
+  );
 }
 
 const database = {
   query,
   getNewClient,
+  updatedAt,
+  databaseVersionResult,
+  maxConnections,
+  openedConnectionsValues,
 };
 export default database;
