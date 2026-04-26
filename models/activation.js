@@ -9,7 +9,7 @@ const EXPIRATION_IN_MILLISECONDS = 60 * 15 * 1000; // 15 minutes;
 
 async function sendEmailToUser(user, activationToken) {
   await email.send({
-    from: "techHub <contato@curso.dev>",
+    from: "nextlab <contato@nextlab.tec.br>",
     to: user.email,
     subject: "Ative seu cadastro no Tech-Hub-Ufca!",
     text: `${user.username}, clique no link abaixo para ativar seu cadastro no Tech-Hub-Ufca!

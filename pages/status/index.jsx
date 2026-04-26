@@ -31,7 +31,7 @@ function InfoDatabase() {
       <>
         <div>{`Versão: ${data.dependencies.database.version}`}</div>
         <div>
-          {`Conexões abertas: ${data.dependencies.database.oponed_connections}`}
+          {`Conexões abertas: ${data.dependencies.database.opened_connections}`}
         </div>
         <div>
           {`Conexões máximas: ${data.dependencies.database.max_connections}`}
