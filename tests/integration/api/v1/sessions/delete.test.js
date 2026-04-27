@@ -1,6 +1,7 @@
 import session from "models/session.js";
 import orchestrator from "../../../../orchestrator.js";
 import * as cookie from "cookie";
+import webserver from "../../../../../infra/webserver.js";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -14,7 +15,7 @@ describe("DELETE to /api/v1/sessions", () => {
       const invalidToken =
         "GC7CbObIDITuHrz6iG4MXjRoLEZpwZoqpwNvOhI2DhXQEA/RpCbwgRl0OsNQlNsY";
 
-      const response = await fetch("http://localhost:3000/api/v1/sessions", {
+      const response = await fetch(`${webserver.origin}/api/v1/sessions`, {
         method: "DELETE",
         headers: {
           cookie: `session_token=${invalidToken}`,
@@ -42,7 +43,7 @@ describe("DELETE to /api/v1/sessions", () => {
 
       jest.useRealTimers();
 
-      const response = await fetch("http://localhost:3000/api/v1/sessions", {
+      const response = await fetch(`${webserver.origin}/api/v1/sessions`, {
         method: "DELETE",
         headers: {
           cookie: `session_token=${validToken}`,
@@ -64,7 +65,7 @@ describe("DELETE to /api/v1/sessions", () => {
       const createdUser = await orchestrator.createUser();
       const sessionObject = await orchestrator.createSession(createdUser.id);
       const validToken = sessionObject.token;
-      const response = await fetch("http://localhost:3000/api/v1/sessions", {
+      const response = await fetch(`${webserver.origin}/api/v1/sessions`, {
         method: "DELETE",
         headers: {
           Cookie: `session_token=${validToken}`,
@@ -94,7 +95,7 @@ describe("DELETE to /api/v1/sessions", () => {
         secure: true,
       });
 
-      const response2 = await fetch("http://localhost:3000/api/v1/sessions", {
+      const response2 = await fetch(`${webserver.origin}/api/v1/sessions`, {
         method: "DELETE",
         headers: {
           cookie: `session_token=${validToken}`,

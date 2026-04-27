@@ -1,5 +1,6 @@
 import orchestrator from "../../../../../orchestrator.js";
 import { version as uuidVersion } from "uuid";
+import webserver from "../../../../../../infra/webserver.js";
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
   await orchestrator.clearDB();
@@ -16,7 +17,7 @@ describe("GET to /api/v1/users/[username]", () => {
       });
 
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/alanmendes",
+        `${webserver.origin}/api/v1/users/alanmendes`,
       );
 
       expect(response.status).toBe(200);
@@ -43,7 +44,7 @@ describe("GET to /api/v1/users/[username]", () => {
       });
 
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/casediferente",
+        `${webserver.origin}/api/v1/users/casediferente`,
       );
       const responseBody = await response.json();
       expect(response.status).toBe(200);
@@ -58,7 +59,7 @@ describe("GET to /api/v1/users/[username]", () => {
     });
     test("With invalid 'username'", async () => {
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/invalidUser",
+        `${webserver.origin}/api/v1/users/invalidUser`,
       );
 
       expect(response.status).toBe(404);
@@ -72,7 +73,7 @@ describe("GET to /api/v1/users/[username]", () => {
       });
     });
     test("With empty 'username'", async () => {
-      const response = await fetch("http://localhost:3000/api/v1/users/");
+      const response = await fetch(`${webserver.origin}/api/v1/users/`);
       expect(response.status).toBe(405);
     });
   });
