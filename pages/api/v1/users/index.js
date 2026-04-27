@@ -26,5 +26,5 @@ async function postHandler(request, response) {
     newUser,
   );
 
-  response.status(201).json(secureOutputValues);
+  return response.status(201).json(secureOutputValues);
 }

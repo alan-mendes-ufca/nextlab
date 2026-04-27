@@ -29,7 +29,7 @@ async function patchHandler(request, response) {
     usedToken,
   );
 
-  response.status(200).json(secureOutputValues);
+  return response.status(200).json(secureOutputValues);
 }
 
 export default router.handler(controller.errorHandlers);

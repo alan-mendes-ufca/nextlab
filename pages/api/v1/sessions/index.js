@@ -53,6 +53,6 @@ async function deleteHandler(request, response) {
     "read:session",
     expiredSessionObject,
   );
-  response.status(200).json(secureOutputValues);
+  return response.status(200).json(secureOutputValues);
 }
 export default router.handler(controller.errorHandlers);
