@@ -3,15 +3,6 @@ import controller from "../../../../../infra/controller.js";
 import activation from "models/activation.js";
 import authorization from "models/authorization.js";
 
-const router = createRouter();
-
-router.use(controller.injectAnonymousOrUser);
-router.patch(
-  controller.canRequest("read:activation_token"),
-  controller.validateTokenType(),
-  patchHandler,
-);
-
 async function patchHandler(request, response) {
   const userTryingToPatch = request.context.user;
   const activationTokenId = request.query.token_id;
@@ -32,4 +23,11 @@ async function patchHandler(request, response) {
   return response.status(200).json(secureOutputValues);
 }
 
-export default router.handler(controller.errorHandlers);
+export default createRouter()
+  .use(controller.injectAnonymousOrUser)
+  .patch(
+    controller.canRequest("read:activation_token"),
+    controller.validateTokenType(),
+    patchHandler,
+  )
+  .handler(controller.errorHandlers);
