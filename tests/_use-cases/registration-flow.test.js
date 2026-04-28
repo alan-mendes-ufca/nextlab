@@ -49,7 +49,7 @@ describe("Use case: Registration Flow (all successful)", () => {
 
     expect(lastEmail.sender).toBe("<contato@nextlab.tec.br>");
     expect(lastEmail.recipients[0]).toBe("<registration.flow@curso.dev>");
-    expect(lastEmail.subject).toEqual("Ative seu cadastro no Tech-Hub-Ufca!");
+    expect(lastEmail.subject).toEqual("Ative seu cadastro no nextlab!");
     expect(lastEmail.text).toContain("RegistrationFlow");
 
     activationToken = orchestrator.extractActivationTokenFromEmail(

@@ -1,7 +1,7 @@
 {
-  "name": "clone-tabnews",
+  "name": "nextlab",
   "version": "1.0.0",
-  "description": "Implementação do www.tabnews.com.br para o cuso.dev",
+  "description": "Plataforma para conectar estudantes e desenvolvedores de tecnologia do Cariri a projetos, oportunidades e experiências práticas.",
   "type": "module",
   "main": "index.js",
   "scripts": {

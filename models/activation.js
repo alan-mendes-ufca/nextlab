@@ -11,13 +11,13 @@ async function sendEmailToUser(user, activationToken) {
   await email.send({
     from: "nextlab <contato@nextlab.tec.br>",
     to: user.email,
-    subject: "Ative seu cadastro no Tech-Hub-Ufca!",
-    text: `${user.username}, clique no link abaixo para ativar seu cadastro no Tech-Hub-Ufca!
+    subject: "Ative seu cadastro no nextlab!",
+    text: `${user.username}, clique no link abaixo para ativar seu cadastro no nextlab!
     
 ${webServer.origin}/cadastro/ativar/${activationToken.id}
 
 Atenciosamente,
-Equipe Tech-Hub-Ufca`,
+Equipe nextlab`,
   });
 }
 
