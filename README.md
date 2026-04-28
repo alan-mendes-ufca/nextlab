@@ -145,11 +145,21 @@ O conteúdo original da jornada de aprendizado foi preservado em [`docs/`](./doc
 
 ## Roadmap
 
-- Criar endpoints de conteúdo.
-- Desenvolver a interface principal da aplicação.
-- Consolidar o fluxo público no domínio `https://www.nextlab.tec.br/`.
-- Evoluir a experiência de contribuição e gestão de projetos.
-- Ampliar cobertura de testes conforme novas features forem adicionadas.
+### Milestone 3: Conteúdo
+
+1. [ ] #55 — Padronização e centralização do sistema de validação back
+2. [ ] #53 — Observabilidade básica back
+3. [ ] #56 — Ativação de conta via POST e comportamento idempotente back
+4. [ ] #58 — Página de ativação de conta front
+5. [ ] #57 — Atualizar email de ativação com link para página web back
+6. [ ] #59 — Reenvio de link de ativação para contas não ativadas back
+7. [ ] #60 — Melhorias no fluxo do link de ativação back
+8. [ ] #52 — Página de cadastro de usuários front
+9. [ ] #61 — Página de login front
+10. [ ] #51 — Nova entidade: Conteúdo back
+11. [ ] #62 — Home listando projetos front
+12. [ ] #63 — Página de projeto com discussões front
+13. [ ] #54 — Estatísticas públicas da plataforma back front
 
 ## Licença
 
