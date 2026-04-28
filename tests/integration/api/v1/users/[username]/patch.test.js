@@ -267,6 +267,10 @@ describe("PATCH to /api/v1/users/[username]", () => {
       expect(Date.parse(responseBody.created_at)).not.toEqual(
         Date.parse(responseBody.updated_at),
       );
+
+      const storedEmail = (await user.findOneByUsername(createdUser.username))
+        .email;
+      expect(storedEmail).toEqual("uniqueEmail2@curso.dev");
     });
 
     test("With new 'password'", async () => {
