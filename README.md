@@ -151,12 +151,6 @@ O conteúdo original da jornada de aprendizado foi preservado em [`docs/`](./doc
 - Evoluir a experiência de contribuição e gestão de projetos.
 - Ampliar cobertura de testes conforme novas features forem adicionadas.
 
-## Contribuição
-
-Contribuições são bem-vindas, especialmente em issues relacionadas a backend, testes, documentação, experiência de usuário e endpoints de conteúdo.
-
-Repositório: https://github.com/alan-mendes-ufca/nextlab
-
 ## Licença
 
 Este projeto está licenciado sob a licença MIT. Consulte o arquivo [`LICENSE`](./LICENSE) para mais detalhes.
