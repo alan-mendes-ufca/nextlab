@@ -34,7 +34,7 @@ describe("GET to /api/v1/sessions", () => {
 
       const activatedUser = await orchestrator.activateUser(createdUser);
 
-      const sessionObject = await orchestrator.createSession(createdUser.id);
+      const sessionObject = await orchestrator.createSession(createdUser);
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
       const response = await fetch(`${webserver.origin}/api/v1/user`, {
@@ -134,7 +134,7 @@ describe("GET to /api/v1/sessions", () => {
         username: "UserWithExpiredSession",
       });
 
-      const sessionObject = await orchestrator.createSession(createdUser.id);
+      const sessionObject = await orchestrator.createSession(createdUser);
 
       jest.useRealTimers();
 
@@ -180,7 +180,7 @@ describe("GET to /api/v1/sessions", () => {
 
       const activatedUser = await orchestrator.activateUser(createdUser);
 
-      const sessionObject = await orchestrator.createSession(activatedUser.id);
+      const sessionObject = await orchestrator.createSession(activatedUser);
 
       jest.useRealTimers();
 
