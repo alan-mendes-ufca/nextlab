@@ -7,8 +7,7 @@ function getOrigin() {
   if (process.env.VERCEL_ENV === "preview")
     return `https://${process.env.VERCEL_URL}`;
 
-  // ainda não tenho um domínio
-  return `https://${process.env.VERCEL_URL}`;
+  return "https://www.nextlab.tec.br";
 }
 
 const webServer = {

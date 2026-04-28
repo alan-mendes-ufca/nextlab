@@ -5,6 +5,7 @@ import migrator from "../models/migrator.js";
 import user from "../models/user.js";
 import session from "../models/session.js";
 import activation from "../models/activation.js";
+import webserver from "../infra/webserver.js";
 
 const emailHttpUrl = `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}`;
 
@@ -30,7 +31,7 @@ async function waitForAllServices() {
 
     async function fetchStatusPage() {
       try {
-        const response = await fetch("http://localhost:3000/api/v1/status");
+        const response = await fetch(`${webserver.origin}/api/v1/status`);
         if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
       } catch (error) {
         console.error("Não foi possível buscar a páguina de status: ", error);
@@ -91,8 +92,8 @@ async function activateUser(inactivaUser) {
   return await activation.activateUserByUserId(inactivaUser.id);
 }
 
-async function createSession(userId) {
-  return await session.create(userId);
+async function createSession(userObject) {
+  return await session.create(userObject.id);
 }
 
 async function deleteAllEmails() {

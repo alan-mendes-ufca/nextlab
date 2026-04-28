@@ -2,6 +2,7 @@ import session from "models/session.js";
 import orchestrator from "../../../../orchestrator.js";
 import { version as uuidVersion } from "uuid";
 import * as cookie from "cookie";
+import webserver from "../../../../../infra/webserver.js";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -15,7 +16,7 @@ describe("POST to /api/v1/sessions", () => {
       await orchestrator.createUser({
         password: "senha-correta",
       });
-      const response = await fetch("http://localhost:3000/api/v1/sessions", {
+      const response = await fetch(`${webserver.origin}/api/v1/sessions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -40,7 +41,7 @@ describe("POST to /api/v1/sessions", () => {
       await orchestrator.createUser({
         email: "email.correto@gmail.com",
       });
-      const response = await fetch("http://localhost:3000/api/v1/sessions", {
+      const response = await fetch(`${webserver.origin}/api/v1/sessions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,7 +64,7 @@ describe("POST to /api/v1/sessions", () => {
     });
     test("With incorrect 'email' and incorrect 'password'", async () => {
       await orchestrator.createUser();
-      const response = await fetch("http://localhost:3000/api/v1/sessions", {
+      const response = await fetch(`${webserver.origin}/api/v1/sessions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -92,7 +93,7 @@ describe("POST to /api/v1/sessions", () => {
 
       await orchestrator.activateUser(createdUser);
 
-      const response = await fetch("http://localhost:3000/api/v1/sessions", {
+      const response = await fetch(`${webserver.origin}/api/v1/sessions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -126,7 +127,9 @@ describe("POST to /api/v1/sessions", () => {
       expiresAt.setMilliseconds(0);
       createdAt.setMilliseconds(0);
 
-      expect(expiresAt - createdAt).toEqual(session.EXPIRATION_IN_MILLISECONDS);
+      expect(Math.round(expiresAt - createdAt)).toEqual(
+        session.EXPIRATION_IN_MILLISECONDS,
+      );
 
       const cookieObject = cookie.parseSetCookie(
         response.headers.getSetCookie()[0],

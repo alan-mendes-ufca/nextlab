@@ -5,14 +5,14 @@ describe("infra/email.js", () => {
   test("send()", async () => {
     await orchestrator.deleteAllEmails();
     await email.send({
-      from: "TecHubUfca <contato@nextlab.tec.br>",
+      from: "nextlab <contato@nextlab.tec.br>",
       to: "teste@teste.com",
       subject: "Teste de assunto.",
       text: "Teste de corpo.",
     });
 
     await email.send({
-      from: "TecHubUfca <contato@nextlab.tec.br>",
+      from: "nextlab <contato@nextlab.tec.br>",
       to: "teste@teste.com",
       subject: "Teste de assunto.",
       text: "Teste de corpo.",

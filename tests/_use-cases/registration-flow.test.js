@@ -1,6 +1,7 @@
 import activation from "models/activation.js";
 import orchestrator from "../orchestrator.js";
 import user from "models/user.js";
+import webserver from "../../infra/webserver.js";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -16,7 +17,7 @@ describe("Use case: Registration Flow (all successful)", () => {
 
   test("Create user account", async () => {
     const createdUserResponse = await fetch(
-      "http://localhost:3000/api/v1/users",
+      `${webserver.origin}/api/v1/users`,
       {
         method: "POST",
         headers: {
@@ -48,7 +49,7 @@ describe("Use case: Registration Flow (all successful)", () => {
 
     expect(lastEmail.sender).toBe("<contato@nextlab.tec.br>");
     expect(lastEmail.recipients[0]).toBe("<registration.flow@curso.dev>");
-    expect(lastEmail.subject).toEqual("Ative seu cadastro no Tech-Hub-Ufca!");
+    expect(lastEmail.subject).toEqual("Ative seu cadastro no nextlab!");
     expect(lastEmail.text).toContain("RegistrationFlow");
 
     activationToken = orchestrator.extractActivationTokenFromEmail(
@@ -62,7 +63,7 @@ describe("Use case: Registration Flow (all successful)", () => {
   });
   test("Activate account", async () => {
     const response = await fetch(
-      `http://localhost:3000/api/v1/activations/${activationToken}`,
+      `${webserver.origin}/api/v1/activations/${activationToken}`,
       {
         method: "PATCH",
       },
@@ -87,7 +88,7 @@ describe("Use case: Registration Flow (all successful)", () => {
 
   test("Login", async () => {
     const createdSessionResponse = await fetch(
-      "http://localhost:3000/api/v1/sessions",
+      `${webserver.origin}/api/v1/sessions`,
       {
         method: "POST",
         headers: {
@@ -109,7 +110,7 @@ describe("Use case: Registration Flow (all successful)", () => {
   });
 
   test("GET user information", async () => {
-    const response = await fetch("http://localhost:3000/api/v1/user", {
+    const response = await fetch(`${webserver.origin}/api/v1/user`, {
       headers: {
         Cookie: `session_token=${createdSessionResponseBody.token}`,
       },

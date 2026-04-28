@@ -1,4 +1,5 @@
 import orchestrator from "../../../../orchestrator.js";
+import webserver from "../../../../../infra/webserver.js";
 
 /*
 - O Jest@10.8.2 não suporta o `ECMAScript Modules (ESM)`! Diferente mente do next.js, 
@@ -21,7 +22,7 @@ beforeAll(async () => {
 describe("GET to /api/v1/migrations", () => {
   describe("Anonymous user", () => {
     test("Retrieving pedding migrations", async () => {
-      const response = await fetch("http://localhost:3000/api/v1/migrations");
+      const response = await fetch(`${webserver.origin}/api/v1/migrations`);
 
       expect(response.status).toBe(403);
 
@@ -39,9 +40,9 @@ describe("GET to /api/v1/migrations", () => {
     test("Retrieving pedding migrations", async () => {
       const createdUser = await orchestrator.createUser();
       const activatedUser = await orchestrator.activateUser(createdUser);
-      const sessionObject = await orchestrator.createSession(activatedUser.id);
+      const sessionObject = await orchestrator.createSession(activatedUser);
 
-      const response = await fetch("http://localhost:3000/api/v1/migrations", {
+      const response = await fetch(`${webserver.origin}/api/v1/migrations`, {
         headers: {
           Cookie: `session_token=${sessionObject.token}`,
         },
@@ -62,11 +63,11 @@ describe("GET to /api/v1/migrations", () => {
     test("Retrieving pedding migrations", async () => {
       const createdUser = await orchestrator.createUser();
       const activatedUser = await orchestrator.activateUser(createdUser);
-      const sessionObject = await orchestrator.createSession(activatedUser.id);
+      const sessionObject = await orchestrator.createSession(activatedUser);
 
       await orchestrator.addFeaturesToUser(createdUser, ["read:migrations"]);
 
-      const response = await fetch("http://localhost:3000/api/v1/migrations", {
+      const response = await fetch(`${webserver.origin}/api/v1/migrations`, {
         headers: {
           Cookie: `session_token=${sessionObject.token}`,
         },
