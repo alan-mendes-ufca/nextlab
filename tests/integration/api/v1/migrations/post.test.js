@@ -9,7 +9,7 @@ beforeAll(async () => {
 
 describe("POST to /api/v1/migrations", () => {
   describe("Anonymous user", () => {
-    test("Retrieving pedding migrations", async () => {
+    test("Running pedding migrations", async () => {
       const response = await fetch(`${webserver.origin}/api/v1/migrations`, {
         method: "POST",
       });
@@ -28,7 +28,7 @@ describe("POST to /api/v1/migrations", () => {
   });
 
   describe("Default user", () => {
-    test("Retrieving pedding migrations", async () => {
+    test("Running pedding migrations", async () => {
       const createdUser = await orchestrator.createUser();
       const activatedUser = await orchestrator.activateUser(createdUser);
       const sessionObject = await orchestrator.createSession(activatedUser);
