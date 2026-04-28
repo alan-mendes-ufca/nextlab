@@ -1,25 +1,38 @@
 function Home() {
   return (
-    <main style={styles.page}>
-      <section style={styles.intro} aria-labelledby="home-title">
-        <p style={styles.status}>Em produção</p>
-        <h1 id="home-title" style={styles.title}>
-          nextlab
-        </h1>
-        <p style={styles.description}>
-          Um laboratório de próxima geração para conectar estudantes e
-          desenvolvedores de tecnologia do Cariri a projetos, oportunidades e
-          experiências práticas.
-        </p>
-        <p style={styles.support}>
-          A plataforma está em produção e segue evoluindo como um espaço para
-          aprender, colaborar e construir soluções com impacto real.
-        </p>
-        <a style={styles.domain} href="https://www.nextlab.tec.br/">
-          www.nextlab.tec.br
-        </a>
-      </section>
-    </main>
+    <>
+      <main style={styles.page}>
+        <section style={styles.intro} aria-labelledby="home-title">
+          <p style={styles.status}>Em produção</p>
+          <h1 id="home-title" style={styles.title}>
+            nextlab
+          </h1>
+          <p style={styles.description}>
+            Um laboratório de próxima geração para conectar estudantes e
+            desenvolvedores de tecnologia do Cariri a projetos, oportunidades e
+            experiências práticas.
+          </p>
+          <p style={styles.support}>
+            A plataforma está em produção e segue evoluindo como um espaço para
+            aprender, colaborar e construir soluções com impacto real.
+          </p>
+          <a style={styles.domain} href="https://www.nextlab.tec.br/">
+            www.nextlab.tec.br
+          </a>
+        </section>
+      </main>
+      <style>{`
+        html,
+        body {
+          margin: 0;
+          background: #050505;
+        }
+
+        * {
+          box-sizing: border-box;
+        }
+      `}</style>
+    </>
   );
 }
 
