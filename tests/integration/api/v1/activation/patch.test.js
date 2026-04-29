@@ -32,7 +32,7 @@ describe("PATCH to /api/v1/activation/[token_id]", () => {
       const responseBody = await response.json();
       expect(responseBody).toEqual({
         name: "ValidationError",
-        message: "Token de ativação inválido.",
+        message: `"token_id" deve ser um UUID v4 válido.`,
         status_code: 400,
       });
     });

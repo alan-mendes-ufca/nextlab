@@ -11,7 +11,6 @@ import {
 import session from "models/session.js";
 import user from "models/user.js";
 import authorization from "models/authorization.js";
-import { validate, version } from "uuid";
 
 function onNoMatchHandler(request, response) {
   const publicErrorObject = new MethodNotAllowedError();
@@ -106,18 +105,6 @@ function canRequest(feature) {
   };
 }
 
-function validateTokenType() {
-  return function isUuid(request, response, next) {
-    const id = request.query.token_id;
-    if (!(validate(id) && version(id) == 4)) {
-      throw new ValidationError({
-        message: "Token de ativação inválido.",
-      });
-    }
-    return next();
-  };
-}
-
 const controller = {
   errorHandlers: {
     onNoMatch: onNoMatchHandler,
@@ -127,7 +114,6 @@ const controller = {
   clearSessionCookie,
   injectAnonymousOrUser,
   canRequest,
-  validateTokenType,
 };
 
 export default controller;
