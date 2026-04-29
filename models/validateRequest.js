@@ -116,4 +116,21 @@ const schemas = {
         }),
     });
   },
+
+  token_id: function () {
+    return Joi.object({
+      token_id: Joi.string()
+        .uuid({ version: "uuidv4" })
+        .when("$required.token_id", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "string.base": `"token_id" deve ser do tipo string.`,
+          "string.guid": `"token_id" deve ser um UUID v4 válido.`,
+          "any.required": `"token_id" é obrigatório.`,
+        }),
+    });
+  },
 };
