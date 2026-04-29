@@ -43,6 +43,97 @@ describe("PATCH to /api/v1/users/[username]", () => {
   });
 
   describe("Default user", () => {
+    test("With empty body", async () => {
+      const createdUser = await orchestrator.createUser({
+        username: "payloadUser",
+      });
+      const activatedUser = await orchestrator.activateUser(createdUser);
+      const sessionObject = await orchestrator.createSession(activatedUser);
+
+      const response = await fetch(
+        `${webserver.origin}/api/v1/users/${createdUser.username}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Cookie: `session_token=${sessionObject.token}`,
+          },
+          body: JSON.stringify({}),
+        },
+      );
+
+      expect(response.status).toBe(400);
+
+      const responseBody = await response.json();
+      expect(responseBody).toEqual({
+        name: "ValidationError",
+        message: "Objeto enviado deve ser no mínimo uma chave.",
+        status_code: 400,
+      });
+    });
+
+    test("With invalid 'email' format", async () => {
+      const createdUser = await orchestrator.createUser({
+        username: "emailPayloadUser",
+      });
+      const activatedUser = await orchestrator.activateUser(createdUser);
+      const sessionObject = await orchestrator.createSession(activatedUser);
+
+      const response = await fetch(
+        `${webserver.origin}/api/v1/users/${createdUser.username}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Cookie: `session_token=${sessionObject.token}`,
+          },
+          body: JSON.stringify({
+            email: "email-invalido",
+          }),
+        },
+      );
+
+      expect(response.status).toBe(400);
+
+      const responseBody = await response.json();
+      expect(responseBody).toEqual({
+        name: "ValidationError",
+        message: `"email" deve conter um email válido.`,
+        status_code: 400,
+      });
+    });
+
+    test("With 'password' shorter than 8 characters", async () => {
+      const createdUser = await orchestrator.createUser({
+        username: "passwordPayloadUser",
+      });
+      const activatedUser = await orchestrator.activateUser(createdUser);
+      const sessionObject = await orchestrator.createSession(activatedUser);
+
+      const response = await fetch(
+        `${webserver.origin}/api/v1/users/${createdUser.username}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Cookie: `session_token=${sessionObject.token}`,
+          },
+          body: JSON.stringify({
+            password: "1234567",
+          }),
+        },
+      );
+
+      expect(response.status).toBe(400);
+
+      const responseBody = await response.json();
+      expect(responseBody).toEqual({
+        name: "ValidationError",
+        message: `"password" deve conter no mínimo 8 caracteres.`,
+        status_code: 400,
+      });
+    });
+
     test("With duplicated 'username'", async () => {
       await orchestrator.createUser({
         username: "user1",
@@ -156,8 +247,12 @@ describe("PATCH to /api/v1/users/[username]", () => {
         {
           method: "PATCH",
           headers: {
+            "Content-Type": "application/json",
             Cookie: `session_token=${sessionObject.token}`,
           },
+          body: JSON.stringify({
+            username: "novoUsuario",
+          }),
         },
       );
       expect(response.status).toBe(404);
@@ -266,7 +361,7 @@ describe("PATCH to /api/v1/users/[username]", () => {
 
       const storedEmail = (await user.findOneByUsername(createdUser.username))
         .email;
-      expect(storedEmail).toEqual("uniqueEmail2@curso.dev");
+      expect(storedEmail).toEqual("uniqueemail2@curso.dev");
     });
 
     test("With new 'password'", async () => {
