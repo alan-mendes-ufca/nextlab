@@ -85,7 +85,6 @@ describe("POST to /api/v1/sessions", () => {
         status_code: 401,
       });
     });
-
     test("With correct 'email' and correct 'password'", async () => {
       const createdUser = await orchestrator.createUser({
         password: "correctPassword",
@@ -141,6 +140,103 @@ describe("POST to /api/v1/sessions", () => {
         path: "/",
         httpOnly: true,
         secure: true,
+      });
+    });
+    test("With invalid 'email' format", async () => {
+      const response = await fetch(`${webserver.origin}/api/v1/sessions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: "email-invalido",
+          password: "senha-correta",
+        }),
+      });
+
+      expect(response.status).toBe(400);
+
+      const responseBody = await response.json();
+      expect(responseBody).toEqual({
+        name: "ValidationError",
+        message: `"email" deve conter um email válido.`,
+        status_code: 400,
+      });
+    });
+
+    test("With 'password' shorter than 8 characters", async () => {
+      const response = await fetch(`${webserver.origin}/api/v1/sessions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: "email.valido@gmail.com",
+          password: "1234567",
+        }),
+      });
+
+      expect(response.status).toBe(400);
+
+      const responseBody = await response.json();
+      expect(responseBody).toEqual({
+        name: "ValidationError",
+        message: `"password" deve conter no mínimo 8 caracteres.`,
+        status_code: 400,
+      });
+    });
+
+    test("With 'password' longer than 72 characters", async () => {
+      const response = await fetch(`${webserver.origin}/api/v1/sessions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: "email.valido@gmail.com",
+          password: "a".repeat(73),
+        }),
+      });
+
+      expect(response.status).toBe(400);
+
+      const responseBody = await response.json();
+      expect(responseBody).toEqual({
+        name: "ValidationError",
+        message: `"password" deve conter no máximo 72 caracteres.`,
+        status_code: 400,
+      });
+    });
+  });
+
+  describe("Default user", () => {
+    test("With already logged in user", async () => {
+      const user = await orchestrator.createUser();
+      await orchestrator.activateUser(user);
+      const userSessionObject = await orchestrator.createSession(user);
+
+      const response = await fetch(`${webserver.origin}/api/v1/sessions`, {
+        method: "POST",
+        body: JSON.stringify({
+          email: user.email,
+          password: "password",
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `session_token=${userSessionObject.token}`,
+        },
+      });
+
+      expect(response.status).toBe(400);
+
+      const responseBody = await response.json();
+
+      expect(responseBody).toEqual({
+        name: "ValidationError",
+        message: "Não é possível logar uma conta enquanto você está logado.",
+        action:
+          "Para logar em uma nova conta, primeiro você precisa sair da conta atual, ou pode acessar a página numa janela anônima.",
+        status_code: 400,
       });
     });
   });

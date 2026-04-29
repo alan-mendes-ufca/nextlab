@@ -2,13 +2,31 @@ import { createRouter } from "next-connect";
 import controller from "../../../../infra/controller.js";
 import authentication from "models/authentication.js";
 import session from "models/session.js";
-
 import authorization from "models/authorization.js";
-import { ForbiddenError } from "infra/errors.js";
+import validateRequest from "models/validateRequest.js";
+import { ForbiddenError, ValidationError } from "infra/errors.js";
+
+function postValidationHandler(request, response, next) {
+  const cleanValues = validateRequest(request.body, {
+    email: "required",
+    password: "required",
+  });
+
+  request.body = cleanValues;
+
+  return next();
+}
 
 async function postHandler(request, response) {
-  const userInputValues = request.body;
+  if (request.context.user.id) {
+    throw new ValidationError({
+      message: "Não é possível logar uma conta enquanto você está logado.",
+      action:
+        "Para logar em uma nova conta, primeiro você precisa sair da conta atual, ou pode acessar a página numa janela anônima.",
+    });
+  }
 
+  const userInputValues = request.body;
   const authenticatedUser = await authentication.getUser(
     userInputValues.email,
     userInputValues.password,
@@ -52,6 +70,10 @@ async function deleteHandler(request, response) {
 
 export default createRouter()
   .use(controller.injectAnonymousOrUser)
-  .post(controller.canRequest("create:session"), postHandler)
+  .post(
+    postValidationHandler,
+    controller.canRequest("create:session"),
+    postHandler,
+  )
   .delete(deleteHandler)
   .handler(controller.errorHandlers);
