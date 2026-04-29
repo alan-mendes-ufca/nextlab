@@ -151,7 +151,9 @@ describe("PATCH to /api/v1/activation/[token_id]", () => {
       expiresAt.setMilliseconds(0);
       createdAt.setMilliseconds(0);
 
-      expect(expiresAt - createdAt).toBe(activation.EXPIRATION_IN_MILLISECONDS);
+      expect(Math.round(expiresAt - createdAt)).toBe(
+        activation.EXPIRATION_IN_MILLISECONDS,
+      );
     });
 
     test("With valid token but already activated user", async () => {
