@@ -162,8 +162,7 @@ describe("POST to /api/v1/users", () => {
       const responseBody = await response.json();
       expect(responseBody).toEqual({
         name: "ValidationError",
-        message: "Email não informado.",
-        action: "Utilize um email para realizar o cadastro.",
+        message: `"email" não pode estar em branco.`,
         status_code: 400,
       });
     });
@@ -185,8 +184,7 @@ describe("POST to /api/v1/users", () => {
       const responseBody1 = await response.json();
       expect(responseBody1).toEqual({
         name: "ValidationError",
-        message: "Username não informado.",
-        action: "Utilize um username para realizar o cadastro.",
+        message: `"username" não pode estar em branco.`,
         status_code: 400,
       });
     });

@@ -3,6 +3,19 @@ import controller from "../../../../infra/controller.js";
 import user from "../../../../models/user.js";
 import activation from "../../../../models/activation.js";
 import authorization from "models/authorization.js";
+import validateRequest from "models/validateRequest.js";
+
+function postValidationHandler(request, response, next) {
+  const cleanValues = validateRequest(request.body, {
+    username: "required",
+    email: "required",
+    password: "required",
+  });
+
+  request.body = cleanValues;
+
+  return next();
+}
 
 async function postHandler(request, response) {
   const userTryingToPost = request.context.user;
@@ -24,5 +37,9 @@ async function postHandler(request, response) {
 
 export default createRouter()
   .use(controller.injectAnonymousOrUser)
-  .post(controller.canRequest("create:user"), postHandler)
+  .post(
+    postValidationHandler,
+    controller.canRequest("create:user"),
+    postHandler,
+  )
   .handler(controller.errorHandlers);
