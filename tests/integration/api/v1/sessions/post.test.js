@@ -207,6 +207,41 @@ describe("POST to /api/v1/sessions", () => {
         status_code: 400,
       });
     });
+
+    test("Without 'create:session' feature", async () => {
+      const createdUser = await orchestrator.createUser({
+        password: "correctPassword",
+      });
+
+      await orchestrator.activateUser(createdUser);
+
+      const updatedUser = await orchestrator.removeFeaturesOfUser(createdUser, [
+        "create:session",
+      ]);
+
+      expect(updatedUser.features.includes("create:session")).toBe(false);
+
+      const response = await fetch(`${webserver.origin}/api/v1/sessions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: createdUser.email,
+          password: "correctPassword",
+        }),
+      });
+
+      expect(response.status).toBe(403);
+
+      const responseBody = await response.json();
+      expect(responseBody).toEqual({
+        action: "Contate o suporte caso você acredite que isto seja um erro.",
+        message: "Você não possui permissão para fazer login.",
+        name: "ForbiddenError",
+        status_code: 403,
+      });
+    });
   });
 
   describe("Default user", () => {
