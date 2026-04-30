@@ -151,7 +151,7 @@ describe("PATCH to /api/v1/activation/[token_id]", () => {
       expiresAt.setMilliseconds(0);
       createdAt.setMilliseconds(0);
 
-      expect(Math.round(expiresAt - createdAt)).toBe(
+      expect(Math.round((expiresAt - createdAt) / 1000) * 1000).toBe(
         activation.EXPIRATION_IN_MILLISECONDS,
       );
     });

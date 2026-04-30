@@ -126,7 +126,7 @@ describe("POST to /api/v1/sessions", () => {
       expiresAt.setMilliseconds(0);
       createdAt.setMilliseconds(0);
 
-      expect(Math.round(expiresAt - createdAt)).toEqual(
+      expect(Math.round((expiresAt - createdAt) / 1000) * 1000).toEqual(
         session.EXPIRATION_IN_MILLISECONDS,
       );
 
