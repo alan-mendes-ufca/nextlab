@@ -11,6 +11,7 @@ import {
 import session from "models/session.js";
 import user from "models/user.js";
 import authorization from "models/authorization.js";
+import validateRequest from "models/validateRequest.js";
 
 function onNoMatchHandler(request, response) {
   const publicErrorObject = new MethodNotAllowedError();
@@ -65,6 +66,11 @@ async function injectAnonymousOrUser(request, response, next) {
   return next();
 
   async function injectAuthenticatedUser(request) {
+    const cleanCookieValues = validateRequest(request.cookies, {
+      session_token: "required",
+    });
+    request.cookies = cleanCookieValues;
+
     const sessionToken = request.cookies.session_token;
     const sessionObject = await session.findOneValidByToken(sessionToken);
     const userObject = await user.findOneById(sessionObject.user_id);

@@ -133,4 +133,23 @@ const schemas = {
         }),
     });
   },
+
+  session_token: function () {
+    return Joi.object({
+      session_token: Joi.string()
+        .hex()
+        .length(96)
+        .lowercase()
+        .when("$required.session_token", {
+          is: "required",
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        })
+        .messages({
+          "string.base": `"session_token" deve ser do tipo string.`,
+          "string.hex": `"session_token" deve conter apenas caracteres hexadecimais.`,
+          "string.length": `"session_token" deve ter 96 caracteres.`,
+        }),
+    });
+  },
 };
