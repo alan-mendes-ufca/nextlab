@@ -24,12 +24,12 @@ async function onErrorHandler(error, request, response) {
     error instanceof NotFoundError ||
     error instanceof ForbiddenError
   ) {
-    response.status(error.statusCode).json(error);
+    return response.status(error.statusCode).json(error);
   }
 
   if (error instanceof UnauthorizedError) {
     clearSessionCookie(response);
-    response.status(error.statusCode).json(error);
+    return response.status(error.statusCode).json(error);
   }
 
   const publicErrorObject = new InternalServerError({
@@ -37,7 +37,7 @@ async function onErrorHandler(error, request, response) {
   });
   console.log("\n Erro dentro do catch do next-connect");
   console.error(publicErrorObject);
-  response.status(publicErrorObject.statusCode).json(publicErrorObject);
+  return response.status(publicErrorObject.statusCode).json(publicErrorObject);
 }
 
 function setSessionCookie(sessionToken, response) {
