@@ -4,7 +4,7 @@ import authentication from "models/authentication.js";
 import session from "models/session.js";
 import authorization from "models/authorization.js";
 import validateRequest from "models/validateRequest.js";
-import { ForbiddenError, ValidationError } from "infra/errors.js";
+import { ForbiddenError } from "infra/errors.js";
 
 function postValidationHandler(request, response, next) {
   const cleanValues = validateRequest(request.body, {
@@ -18,8 +18,11 @@ function postValidationHandler(request, response, next) {
 }
 
 async function postHandler(request, response) {
-  if (request.context.user.id) {
-    throw new ValidationError({
+  const userTryingToPost = request.context.user;
+  if (
+    !authorization.can(userTryingToPost, "create:session", userTryingToPost.id)
+  ) {
+    throw new ForbiddenError({
       message: "Não é possível logar uma conta enquanto você está logado.",
       action:
         "Para logar em uma nova conta, primeiro você precisa sair da conta atual, ou pode acessar a página numa janela anônima.",
