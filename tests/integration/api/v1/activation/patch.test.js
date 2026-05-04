@@ -32,7 +32,7 @@ describe("PATCH to /api/v1/activation/[token_id]", () => {
       const responseBody = await response.json();
       expect(responseBody).toEqual({
         name: "ValidationError",
-        message: "Token de ativação inválido.",
+        message: `"token_id" deve ser um UUID v4 válido.`,
         status_code: 400,
       });
     });
@@ -151,7 +151,9 @@ describe("PATCH to /api/v1/activation/[token_id]", () => {
       expiresAt.setMilliseconds(0);
       createdAt.setMilliseconds(0);
 
-      expect(expiresAt - createdAt).toBe(activation.EXPIRATION_IN_MILLISECONDS);
+      expect(Math.round((expiresAt - createdAt) / 1000) * 1000).toBe(
+        activation.EXPIRATION_IN_MILLISECONDS,
+      );
     });
 
     test("With valid token but already activated user", async () => {

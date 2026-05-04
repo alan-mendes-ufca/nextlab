@@ -133,6 +133,11 @@ async function addFeaturesToUser(userObject, features) {
   return updatedUser;
 }
 
+async function removeFeaturesOfUser(userObject, features) {
+  const updatedUser = user.removeFeatures(userObject.id, features);
+  return updatedUser;
+}
+
 const orchestrator = {
   waitForAllServices,
   clearDB,
@@ -145,6 +150,7 @@ const orchestrator = {
   getLastEmail,
   extractActivationTokenFromEmail,
   addFeaturesToUser,
+  removeFeaturesOfUser,
 };
 
 export default orchestrator;

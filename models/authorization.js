@@ -38,6 +38,10 @@ function can(user, feature, resource) {
       authorized = true;
   }
 
+  if (user.id && feature === "create:session" && resource) {
+    authorized = false;
+  }
+
   return authorized;
 }
 

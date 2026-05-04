@@ -2,7 +2,18 @@ import { createRouter } from "next-connect";
 import controller from "../../../../../infra/controller.js";
 import user from "../../../../../models/user.js";
 import authorization from "models/authorization.js";
+import validateRequest from "models/validateRequest.js";
 import { ForbiddenError } from "infra/errors.js";
+
+function getValidationHandler(request, response, next) {
+  const cleanValues = validateRequest(request.query, {
+    username: "required",
+  });
+
+  request.query = cleanValues;
+
+  return next();
+}
 
 async function getHandler(request, response) {
   const userTryingToGet = request.context.user;
@@ -16,6 +27,24 @@ async function getHandler(request, response) {
   );
 
   response.status(200).json(secureOutputValues);
+}
+
+function patchValidationHandler(request, response, next) {
+  const cleanQueryValues = validateRequest(request.query, {
+    username: "required",
+  });
+
+  request.query = cleanQueryValues;
+
+  const cleanBodyValues = validateRequest(request.body, {
+    username: "optional",
+    email: "optional",
+    password: "optional",
+  });
+
+  request.body = cleanBodyValues;
+
+  return next();
 }
 
 async function patchHandler(request, response) {
@@ -46,6 +75,10 @@ async function patchHandler(request, response) {
 
 export default createRouter()
   .use(controller.injectAnonymousOrUser)
-  .get(getHandler)
-  .patch(controller.canRequest("update:user"), patchHandler)
+  .get(getValidationHandler, getHandler)
+  .patch(
+    patchValidationHandler,
+    controller.canRequest("update:user"),
+    patchHandler,
+  )
   .handler(controller.errorHandlers);

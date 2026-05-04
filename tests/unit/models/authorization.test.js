@@ -36,6 +36,25 @@ describe("models/authorization.js", () => {
 
       expect(authorization.can(createdUser, "create:user")).toBe(true);
     });
+
+    test("with anonymous user creating session", () => {
+      const anonymousUser = {
+        features: ["create:session"],
+      };
+
+      expect(authorization.can(anonymousUser, "create:session")).toBe(true);
+    });
+
+    test("with default user already logged in creating session", () => {
+      const defaultUser = {
+        id: "6cd353d4-b663-47e4-9d6b-1a3d54feba1c",
+        features: ["create:session"],
+      };
+
+      expect(
+        authorization.can(defaultUser, "create:session", defaultUser.id),
+      ).toBe(false);
+    });
   });
 
   describe(".filterOutput()", () => {

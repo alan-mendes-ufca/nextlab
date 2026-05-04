@@ -163,13 +163,6 @@ async function findOneById(id) {
 }
 
 async function validateUniqueEmail(email) {
-  if (!email) {
-    const valitationError = new ValidationError({
-      message: "Email não informado.",
-      action: "Utilize um email para realizar o cadastro.",
-    });
-    throw valitationError;
-  }
   const result = await database.query({
     text: `
       SELECT email
@@ -189,13 +182,6 @@ async function validateUniqueEmail(email) {
 }
 
 async function validateUniqueUsername(username) {
-  if (!username) {
-    const valitationError = new ValidationError({
-      message: "Username não informado.",
-      action: "Utilize um username para realizar o cadastro.",
-    });
-    throw valitationError;
-  }
   const result = await database.query({
     text: `
     SELECT 
@@ -263,6 +249,49 @@ async function addFeatures(userId, features) {
   }
 }
 
+async function removeFeatures(userId, featuresToRemove) {
+  const storedUser = await findOneById(userId);
+
+  const storedFeatures = storedUser.features;
+  const newFeaturesCollection = {
+    features: storedFeatures.filter((item) => !featuresToRemove.includes(item)),
+  };
+
+  const userWithNewFeaturesCollection = {
+    ...storedUser,
+    ...newFeaturesCollection,
+  };
+
+  const updatedUser = runUpdateQuery(userWithNewFeaturesCollection);
+  return updatedUser;
+
+  async function runUpdateQuery(userWithNewValues) {
+    const result = await database.query({
+      text: `
+        UPDATE
+          users
+        SET username   = $2,
+            email      = $3,
+            password   = $4,
+            features   = $5,
+            updated_at = timezone('utc', now())
+        WHERE id = $1 RETURNING
+      *
+        ;
+      `,
+      values: [
+        userWithNewValues.id,
+        userWithNewValues.username,
+        userWithNewValues.email,
+        userWithNewValues.password,
+        userWithNewValues.features,
+      ],
+    });
+
+    return result.rows[0];
+  }
+}
+
 const user = {
   create,
   update,
@@ -271,5 +300,6 @@ const user = {
   findOneById,
   setFeatures,
   addFeatures,
+  removeFeatures,
 };
 export default user;

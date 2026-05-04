@@ -13,7 +13,7 @@ describe("DELETE to /api/v1/sessions", () => {
   describe("Anonymous user", () => {
     test("With nonexistent session", async () => {
       const invalidToken =
-        "GC7CbObIDITuHrz6iG4MXjRoLEZpwZoqpwNvOhI2DhXQEA/RpCbwgRl0OsNQlNsY";
+        "7e00c23355afc16a39f10c87f7e5e7b5bf48621a9954150864fad311f065a26476f86c900059f65efe3341d5394fca05";
 
       const response = await fetch(`${webserver.origin}/api/v1/sessions`, {
         method: "DELETE",
@@ -39,7 +39,7 @@ describe("DELETE to /api/v1/sessions", () => {
       });
 
       const createdUser = await orchestrator.createUser();
-      const validToken = await orchestrator.createSession(createdUser);
+      const validToken = (await orchestrator.createSession(createdUser)).token;
 
       jest.useRealTimers();
 

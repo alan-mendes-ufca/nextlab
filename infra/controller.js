@@ -11,7 +11,7 @@ import {
 import session from "models/session.js";
 import user from "models/user.js";
 import authorization from "models/authorization.js";
-import { validate, version } from "uuid";
+import validateRequest from "models/validateRequest.js";
 
 function onNoMatchHandler(request, response) {
   const publicErrorObject = new MethodNotAllowedError();
@@ -24,12 +24,12 @@ async function onErrorHandler(error, request, response) {
     error instanceof NotFoundError ||
     error instanceof ForbiddenError
   ) {
-    response.status(error.statusCode).json(error);
+    return response.status(error.statusCode).json(error);
   }
 
   if (error instanceof UnauthorizedError) {
     clearSessionCookie(response);
-    response.status(error.statusCode).json(error);
+    return response.status(error.statusCode).json(error);
   }
 
   const publicErrorObject = new InternalServerError({
@@ -37,7 +37,7 @@ async function onErrorHandler(error, request, response) {
   });
   console.log("\n Erro dentro do catch do next-connect");
   console.error(publicErrorObject);
-  response.status(publicErrorObject.statusCode).json(publicErrorObject);
+  return response.status(publicErrorObject.statusCode).json(publicErrorObject);
 }
 
 function setSessionCookie(sessionToken, response) {
@@ -66,6 +66,11 @@ async function injectAnonymousOrUser(request, response, next) {
   return next();
 
   async function injectAuthenticatedUser(request) {
+    const cleanCookieValues = validateRequest(request.cookies, {
+      session_token: "required",
+    });
+    request.cookies = cleanCookieValues;
+
     const sessionToken = request.cookies.session_token;
     const sessionObject = await session.findOneValidByToken(sessionToken);
     const userObject = await user.findOneById(sessionObject.user_id);
@@ -106,18 +111,6 @@ function canRequest(feature) {
   };
 }
 
-function validateTokenType() {
-  return function isUuid(request, response, next) {
-    const id = request.query.token_id;
-    if (!(validate(id) && version(id) == 4)) {
-      throw new ValidationError({
-        message: "Token de ativação inválido.",
-      });
-    }
-    return next();
-  };
-}
-
 const controller = {
   errorHandlers: {
     onNoMatch: onNoMatchHandler,
@@ -127,7 +120,6 @@ const controller = {
   clearSessionCookie,
   injectAnonymousOrUser,
   canRequest,
-  validateTokenType,
 };
 
 export default controller;

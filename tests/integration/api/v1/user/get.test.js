@@ -10,7 +10,7 @@ beforeAll(async () => {
   await orchestrator.runPendingMigrations();
 });
 
-describe("GET to /api/v1/sessions", () => {
+describe("GET to /api/v1/user", () => {
   describe("Anonymous user", () => {
     test("With injected anonymous user", async () => {
       const response = await fetch(`${webserver.origin}/api/v1/user`);
@@ -92,9 +92,9 @@ describe("GET to /api/v1/sessions", () => {
       });
     });
 
-    test("With non-existent 'session'", async () => {
+    test("With nonexistent 'session'", async () => {
       const invalidSession =
-        "wiw6Gezs61i9ahIKomfoFm83Pdg7hnpYIIuiE+AzIVQNm/ojhkca5tQj3YvET5y0";
+        "37ac70d7f17e1d2cab960bc30048fa195295d04d8edde8c0f5cc3f0cca9fe70b56b96fa7e6217885ed6d9e3d547d99ca";
       const response = await fetch(`${webserver.origin}/api/v1/user`, {
         headers: {
           Cookie: `session_token=${invalidSession}`,
