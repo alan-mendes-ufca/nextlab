@@ -1,4 +1,4 @@
-# nextlab
+# [nextlab.tec.br](nextlab.tec.br)
 
 nextlab é uma plataforma em desenvolvimento para conectar estudantes e desenvolvedores de tecnologia do Cariri a projetos, oportunidades e experiências práticas.
 
