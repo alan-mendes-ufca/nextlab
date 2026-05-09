@@ -12,6 +12,8 @@ import session from "models/session.js";
 import user from "models/user.js";
 import authorization from "models/authorization.js";
 import validateRequest from "models/validateRequest.js";
+import crypto from "node:crypto";
+import logger from "models/logger.js";
 
 function onNoMatchHandler(request, response) {
   const publicErrorObject = new MethodNotAllowedError();
@@ -19,6 +21,10 @@ function onNoMatchHandler(request, response) {
 }
 
 async function onErrorHandler(error, request, response) {
+  if (error) {
+    await logRequestError(request, response, error);
+  }
+
   if (
     error instanceof ValidationError ||
     error instanceof NotFoundError ||
@@ -111,6 +117,88 @@ function canRequest(feature) {
   };
 }
 
+function logRequest(event, message) {
+  return async function log(request, response, next) {
+    const requestId = crypto.randomUUID();
+    response.setHeader("request_id", requestId);
+
+    request.context = {
+      ...request.context,
+      request_id: requestId,
+      method: request.method,
+      path: request.url,
+    };
+
+    response.on("finish", async () => {
+      if (response.statusCode >= 400) return;
+
+      await logger.info({
+        event: event || "request.completed",
+        message: message || "Requisição finalizada",
+        request: request,
+        response: response,
+        user: request.context?.user,
+        context: request.context,
+        statusCode: response.statusCode,
+      });
+    });
+
+    return next();
+  };
+}
+
+async function logRequestError(request, response, error) {
+  const event = getEventError(error);
+  const level = getLevelError(error);
+
+  let result;
+  switch (level) {
+    case "error":
+      result = await logger.error({
+        error: error,
+        event: event,
+        message: error.message,
+        request: request,
+        response: response,
+        user: request.context?.user,
+        context: request.context,
+        statusCode: error.statusCode,
+      });
+      break;
+
+    case "warn":
+      result = await logger.warn({
+        error: error,
+        event: event,
+        message: error.message,
+        request: request,
+        response: response,
+        user: request.context?.user,
+        context: request.context,
+        statusCode: error.statusCode,
+      });
+      break;
+  }
+
+  return result;
+
+  function getEventError(error) {
+    if (error.name === "ValidationError") return "validation.failed";
+    if (error.name === "UnauthorizedError") return "authentication.failed";
+    if (error.name === "ForbiddenError") return "authorization.failed";
+    if (error.name === "NotFoundError") return "resource.not_found";
+
+    return "request.failed";
+  }
+
+  function getLevelError(error) {
+    if (error.statusCode >= 500) return "error";
+    if (error.statusCode === 404) return "info";
+    if (error.statusCode >= 400) return "warn";
+    return "error";
+  }
+}
+
 const controller = {
   errorHandlers: {
     onNoMatch: onNoMatchHandler,
@@ -120,6 +208,8 @@ const controller = {
   clearSessionCookie,
   injectAnonymousOrUser,
   canRequest,
+  logRequest,
+  logRequestError,
 };
 
 export default controller;
