@@ -37,6 +37,7 @@ async function patchHandler(request, response) {
 export default createRouter()
   .use(controller.injectAnonymousOrUser)
   .patch(
+    controller.logRequest("user.activated", "Usuário ativado com sucesso."),
     patchValidationHandler,
     controller.canRequest("read:activation_token"),
     patchHandler,

@@ -93,6 +93,15 @@ async function findApplicationLogByRequestId(request_id) {
   return result.rows[0];
 }
 
+async function findApplicationLogsByRequestId(request_id) {
+  const result = await database.query({
+    text: "SELECT * FROM application_logs WHERE request_id = $1;",
+    values: [request_id],
+  });
+
+  return result.rows;
+}
+
 async function info(params) {
   return create({ ...params, level: "info" });
 }
@@ -111,6 +120,7 @@ const logger = {
   error,
   findApplicationLogById,
   findApplicationLogByRequestId,
+  findApplicationLogsByRequestId,
 };
 
 export default logger;

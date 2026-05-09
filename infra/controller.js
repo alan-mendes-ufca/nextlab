@@ -15,6 +15,8 @@ import validateRequest from "models/validateRequest.js";
 import crypto from "node:crypto";
 import logger from "models/logger.js";
 
+const ignoredPaths = ["/api/v1/status"];
+
 function onNoMatchHandler(request, response) {
   const publicErrorObject = new MethodNotAllowedError();
   response.status(publicErrorObject.statusCode).json(publicErrorObject);
@@ -130,15 +132,14 @@ function logRequest(event, message) {
     };
 
     response.on("finish", async () => {
-      if (response.statusCode >= 400) return;
+      if (ignoredPaths.includes(request.url)) return;
 
       await logger.info({
-        event: event || "request.completed",
+        event: event || "request.fineshed",
         message: message || "Requisição finalizada",
         request: request,
         response: response,
         user: request.context?.user,
-        context: request.context,
         statusCode: response.statusCode,
       });
     });
@@ -148,6 +149,8 @@ function logRequest(event, message) {
 }
 
 async function logRequestError(request, response, error) {
+  if (ignoredPaths.includes(request.url)) return;
+
   const event = getEventError(error);
   const level = getLevelError(error);
 
@@ -155,6 +158,19 @@ async function logRequestError(request, response, error) {
   switch (level) {
     case "error":
       result = await logger.error({
+        error: error,
+        event: event,
+        message: error.message,
+        request: request,
+        response: response,
+        user: request.context?.user,
+        context: request.context,
+        statusCode: error.statusCode,
+      });
+      break;
+
+    case "info":
+      result = await logger.info({
         error: error,
         event: event,
         message: error.message,

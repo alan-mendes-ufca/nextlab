@@ -28,5 +28,9 @@ async function getHandler(request, response) {
 
 export default createRouter()
   .use(controller.injectAnonymousOrUser)
-  .get(controller.canRequest("read:status"), getHandler)
+  .get(
+    controller.logRequest("status.fetched", "Status consultado com sucesso."),
+    controller.canRequest("read:status"),
+    getHandler,
+  )
   .handler(controller.errorHandlers);

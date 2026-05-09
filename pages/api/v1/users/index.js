@@ -38,6 +38,7 @@ async function postHandler(request, response) {
 export default createRouter()
   .use(controller.injectAnonymousOrUser)
   .post(
+    controller.logRequest("user.created", "Usuário criado com sucesso."),
     postValidationHandler,
     controller.canRequest("create:user"),
     postHandler,
