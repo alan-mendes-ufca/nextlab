@@ -138,6 +138,15 @@ async function removeFeaturesOfUser(userObject, features) {
   return updatedUser;
 }
 
+async function findApplicationLogById(id) {
+  const result = await db.query({
+    text: "SELECT * FROM application_logs WHERE id = $1;",
+    values: [id],
+  });
+
+  return result.rows[0];
+}
+
 const orchestrator = {
   waitForAllServices,
   clearDB,
@@ -151,6 +160,7 @@ const orchestrator = {
   extractActivationTokenFromEmail,
   addFeaturesToUser,
   removeFeaturesOfUser,
+  findApplicationLogById,
 };
 
 export default orchestrator;
