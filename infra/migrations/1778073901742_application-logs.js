@@ -42,10 +42,6 @@ export const up = (pgm) => {
       type: "integer",
     },
 
-    context: {
-      type: "jsonb",
-    },
-
     metadata: {
       type: "jsonb",
     },
