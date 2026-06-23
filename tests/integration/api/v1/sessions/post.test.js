@@ -163,7 +163,6 @@ describe("POST to /api/v1/sessions", () => {
         status_code: 400,
       });
     });
-
     test("With 'password' shorter than 8 characters", async () => {
       const response = await fetch(`${webserver.origin}/api/v1/sessions`, {
         method: "POST",
@@ -185,7 +184,6 @@ describe("POST to /api/v1/sessions", () => {
         status_code: 400,
       });
     });
-
     test("With 'password' longer than 72 characters", async () => {
       const response = await fetch(`${webserver.origin}/api/v1/sessions`, {
         method: "POST",
@@ -207,7 +205,6 @@ describe("POST to /api/v1/sessions", () => {
         status_code: 400,
       });
     });
-
     test("Without 'create:session' feature", async () => {
       const createdUser = await orchestrator.createUser({
         password: "correctPassword",

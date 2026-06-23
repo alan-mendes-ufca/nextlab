@@ -32,7 +32,6 @@ describe("DELETE to /api/v1/sessions", () => {
         status_code: 401,
       });
     });
-
     test("With expired session", async () => {
       jest.useFakeTimers({
         now: new Date(Date.now() - session.EXPIRATION_IN_MILLISECONDS),
@@ -60,7 +59,6 @@ describe("DELETE to /api/v1/sessions", () => {
         status_code: 401,
       });
     });
-
     test("With valid session", async () => {
       const createdUser = await orchestrator.createUser();
       const sessionObject = await orchestrator.createSession(createdUser);
@@ -71,11 +69,9 @@ describe("DELETE to /api/v1/sessions", () => {
           Cookie: `session_token=${validToken}`,
         },
       });
-
       expect(response.status).toBe(200);
 
       const responseBody = await response.json();
-
       expect(
         Date.parse(responseBody.created_at) >
           Date.parse(responseBody.expires_at),
@@ -85,7 +81,6 @@ describe("DELETE to /api/v1/sessions", () => {
       const parsedSetCookie = cookie.parseSetCookie(
         response.headers.getSetCookie()[0],
       );
-
       expect(parsedSetCookie).toEqual({
         name: "session_token",
         value: "invalid",
@@ -95,13 +90,13 @@ describe("DELETE to /api/v1/sessions", () => {
         secure: true,
       });
 
+      // Try to delete the session again with the same token
       const response2 = await fetch(`${webserver.origin}/api/v1/sessions`, {
         method: "DELETE",
         headers: {
           cookie: `session_token=${validToken}`,
         },
       });
-
       expect(response2.status).toBe(401);
     });
   });
