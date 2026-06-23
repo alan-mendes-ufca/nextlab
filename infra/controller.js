@@ -70,7 +70,7 @@ function clearSessionCookie(response) {
 
 async function injectAnonymousOrUser(request, response, next) {
   if (request.cookies?.session_token) await injectAuthenticatedUser(request);
-  else await injectAnonymousUser(request);
+  else injectAnonymousUser(request);
   return next();
 
   async function injectAuthenticatedUser(request) {
@@ -89,7 +89,7 @@ async function injectAnonymousOrUser(request, response, next) {
     };
   }
 
-  async function injectAnonymousUser(request) {
+  function injectAnonymousUser(request) {
     const anonymousUserObject = {
       features: [
         "read:activation_token",
