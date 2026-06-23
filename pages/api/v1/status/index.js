@@ -3,6 +3,15 @@ import controller from "../../../../infra/controller.js";
 import database from "../../../../infra/database.js";
 import authorization from "models/authorization.js";
 
+export default createRouter()
+  .use(controller.injectAnonymousOrUser)
+  .get(
+    controller.logRequest("status.fetched", "Status consultado com sucesso."),
+    controller.canRequest("read:status"),
+    getHandler,
+  )
+  .handler(controller.errorHandlers);
+
 async function getHandler(request, response) {
   const userTryingToGet = request.context.user;
 
@@ -25,12 +34,3 @@ async function getHandler(request, response) {
 
   return response.status(200).json(secureOutputValues);
 }
-
-export default createRouter()
-  .use(controller.injectAnonymousOrUser)
-  .get(
-    controller.logRequest("status.fetched", "Status consultado com sucesso."),
-    controller.canRequest("read:status"),
-    getHandler,
-  )
-  .handler(controller.errorHandlers);

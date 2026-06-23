@@ -5,6 +5,21 @@ import authorization from "models/authorization.js";
 import validateRequest from "models/validateRequest.js";
 import { ForbiddenError } from "infra/errors.js";
 
+export default createRouter()
+  .use(controller.injectAnonymousOrUser)
+  .get(
+    controller.logRequest("user.fetched", "Usuário consultado com sucesso."),
+    getValidationHandler,
+    getHandler,
+  )
+  .patch(
+    controller.logRequest("user.updated", "Usuário atualizado com sucesso."),
+    patchValidationHandler,
+    controller.canRequest("update:user"),
+    patchHandler,
+  )
+  .handler(controller.errorHandlers);
+
 function getValidationHandler(request, response, next) {
   const cleanValues = validateRequest(request.query, {
     username: "required",
@@ -72,18 +87,3 @@ async function patchHandler(request, response) {
 
   response.status(200).json(secureOutputValues);
 }
-
-export default createRouter()
-  .use(controller.injectAnonymousOrUser)
-  .get(
-    controller.logRequest("user.fetched", "Usuário consultado com sucesso."),
-    getValidationHandler,
-    getHandler,
-  )
-  .patch(
-    controller.logRequest("user.updated", "Usuário atualizado com sucesso."),
-    patchValidationHandler,
-    controller.canRequest("update:user"),
-    patchHandler,
-  )
-  .handler(controller.errorHandlers);

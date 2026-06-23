@@ -5,6 +5,16 @@ import activation from "../../../../models/activation.js";
 import authorization from "models/authorization.js";
 import validateRequest from "models/validateRequest.js";
 
+export default createRouter()
+  .use(controller.injectAnonymousOrUser)
+  .post(
+    controller.logRequest("user.created", "Usuário criado com sucesso."),
+    postValidationHandler,
+    controller.canRequest("create:user"),
+    postHandler,
+  )
+  .handler(controller.errorHandlers);
+
 function postValidationHandler(request, response, next) {
   const cleanValues = validateRequest(request.body, {
     username: "required",
@@ -34,13 +44,3 @@ async function postHandler(request, response) {
 
   return response.status(201).json(secureOutputValues);
 }
-
-export default createRouter()
-  .use(controller.injectAnonymousOrUser)
-  .post(
-    controller.logRequest("user.created", "Usuário criado com sucesso."),
-    postValidationHandler,
-    controller.canRequest("create:user"),
-    postHandler,
-  )
-  .handler(controller.errorHandlers);

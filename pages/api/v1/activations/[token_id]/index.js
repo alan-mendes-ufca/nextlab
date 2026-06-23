@@ -4,6 +4,16 @@ import activation from "models/activation.js";
 import authorization from "models/authorization.js";
 import validateRequest from "models/validateRequest.js";
 
+export default createRouter()
+  .use(controller.injectAnonymousOrUser)
+  .patch(
+    controller.logRequest("user.activated", "Usuário ativado com sucesso."),
+    patchValidationHandler,
+    controller.canRequest("read:activation_token"),
+    patchHandler,
+  )
+  .handler(controller.errorHandlers);
+
 function patchValidationHandler(request, response, next) {
   const cleanValues = validateRequest(request.query, {
     token_id: "required",
@@ -33,13 +43,3 @@ async function patchHandler(request, response) {
 
   return response.status(200).json(secureOutputValues);
 }
-
-export default createRouter()
-  .use(controller.injectAnonymousOrUser)
-  .patch(
-    controller.logRequest("user.activated", "Usuário ativado com sucesso."),
-    patchValidationHandler,
-    controller.canRequest("read:activation_token"),
-    patchHandler,
-  )
-  .handler(controller.errorHandlers);

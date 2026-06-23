@@ -6,6 +6,20 @@ import authorization from "models/authorization.js";
 import validateRequest from "models/validateRequest.js";
 import { ForbiddenError } from "infra/errors.js";
 
+export default createRouter()
+  .use(controller.injectAnonymousOrUser)
+  .post(
+    controller.logRequest("session.created", "Sessão criada com sucesso."),
+    postValidationHandler,
+    controller.canRequest("create:session"),
+    postHandler,
+  )
+  .delete(
+    controller.logRequest("session.deleted", "Sessão encerrada com sucesso."),
+    deleteHandler,
+  )
+  .handler(controller.errorHandlers);
+
 function postValidationHandler(request, response, next) {
   const cleanValues = validateRequest(request.body, {
     email: "required",
@@ -70,17 +84,3 @@ async function deleteHandler(request, response) {
   );
   return response.status(200).json(secureOutputValues);
 }
-
-export default createRouter()
-  .use(controller.injectAnonymousOrUser)
-  .post(
-    controller.logRequest("session.created", "Sessão criada com sucesso."),
-    postValidationHandler,
-    controller.canRequest("create:session"),
-    postHandler,
-  )
-  .delete(
-    controller.logRequest("session.deleted", "Sessão encerrada com sucesso."),
-    deleteHandler,
-  )
-  .handler(controller.errorHandlers);
